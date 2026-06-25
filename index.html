@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Grandmaster Dashboard - Premium Edition</title>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Chessboard.js -->
+    <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
+    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+    
+    <!-- Chess.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        /* --- PREMIUM WOODEN TABLE THEME --- */
+        body, html { 
+            margin: 0; padding: 0; width: 100%; overflow: hidden;
+            height: 100dvh; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #2b1700;
+            background-image: radial-gradient(circle at center, #4a2a14 0%, #120a05 100%);
+            color: #e0e0e0;
+            touch-action: manipulation; 
+        }
+        
+        /* --- SCENARIO DISPLAY WITH WRAPPING --- */
+        #fen-display {
+            position: absolute; bottom: max(20px, env(safe-area-inset-bottom)); left: 20px;
+            font-size: 12px; color: rgba(255, 255, 255, 0.4);
+            text-transform: uppercase; letter-spacing: 2px; font-weight: bold;
+            pointer-events: none; z-index: 10; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            max-width: 250px; /* Forces wrapping on long names */
+            line-height: 1.4; word-wrap: break-word;
+        }
+
+        /* --- TOP RIGHT FLOATING MENU --- */
+        #top-nav {
+            position: absolute; top: max(15px, env(safe-area-inset-top)); right: 15px;
+            display: flex; gap: 6px; z-index: 100;
+        }
+
+        .glass-btn {
+            background: rgba(20, 20, 20, 0.85); 
+            border: 1px solid rgba(255, 255, 255, 0.1); color: #ddd; 
+            padding: 8px 14px; font-size: 11px; font-weight: bold;
+            border-radius: 4px; cursor: pointer; transition: all 0.15s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.6); text-transform: uppercase; letter-spacing: 1px;
+        }
+        .glass-btn:hover:not(:disabled) { background: rgba(0, 122, 204, 0.9); border-color: #007acc; color: white; transform: translateY(-1px); }
+        .glass-btn:disabled { background: rgba(10, 10, 10, 0.6); color: #555; cursor: not-allowed; }
+
+        /* The Grandmaster Undo Button */
+        #undo-btn {
+            display: none; 
+            position: absolute; left: calc(100% + 15px); top: 50%; transform: translateY(-50%);
+            white-space: nowrap; border-color: rgba(212, 175, 55, 0.4); color: #d4af37;
+        }
+        #undo-btn:hover { background: rgba(212, 175, 55, 0.2); border-color: #d4af37; color: #fff; }
+
+        /* --- DASHBOARD DROPDOWN --- */
+        #dashboard-panel {
+            position: absolute; top: calc(max(15px, env(safe-area-inset-top)) + 40px); right: 15px; 
+            width: 320px; max-width: calc(100vw - 30px);
+            background: linear-gradient(145deg, #3d2210, #170d06); 
+            border: 4px solid #5c3a21; border-radius: 8px;
+            padding: 20px; box-shadow: 0 15px 50px rgba(0,0,0,0.9), inset 0 0 15px rgba(0,0,0,0.8);
+            display: none; z-index: 99; flex-direction: column; max-height: calc(100dvh - 90px);
+            overflow-y: auto;
+        }
+        #dashboard-panel h2 { 
+            margin: 0 0 15px 0; font-size: 18px; color: #b89947; 
+            border-bottom: 1px solid #5c3a21; padding-bottom: 8px; text-align: center;
+            font-family: 'Georgia', 'Times New Roman', serif; text-shadow: 1px 1px 2px #000;
+        }
+        
+        .control-group { margin-bottom: 15px; display: flex; flex-direction: column; }
+        label { font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #e6cdac; margin-bottom: 5px; text-shadow: 1px 1px 2px #000;}
+        select { 
+            background-color: rgba(0,0,0,0.5); color: #e6cdac; border: 1px solid #5c3a21; 
+            padding: 10px; border-radius: 4px; font-size: 13px; outline: none; cursor: pointer; margin-bottom: 8px;
+        }
+        select:focus { border-color: #d4af37; box-shadow: 0 0 5px rgba(212,175,55,0.4); }
+        
+        /* Custom Checkbox for Time Increment */
+        .checkbox-wrapper { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; cursor: pointer; }
+        .checkbox-wrapper input[type="checkbox"] { cursor: pointer; width: 16px; height: 16px; accent-color: #d4af37; }
+        .checkbox-wrapper label { margin: 0; font-size: 11px; cursor: pointer; color: #e6cdac; }
+
+        #load-btn { 
+            background: linear-gradient(145deg, #4a2a14, #241407); border: 1px solid #d4af37; 
+            color: #d4af37; width: 100%; padding: 10px; font-size: 12px; margin-bottom: 10px;
+            font-weight: bold; text-transform: uppercase; cursor: pointer; transition: 0.2s; border-radius: 4px;
+        }
+        #load-btn:hover:not(:disabled) { background: #d4af37; color: #170d06; }
+        
+        #switch-btn { 
+            background-color: rgba(0,0,0,0.4); color: #aaa; width: 100%; margin-bottom: 15px; 
+            padding: 10px; font-size: 11px; font-weight: bold; text-transform: uppercase; 
+            border-radius: 4px; border: 1px solid #5c3a21; cursor: pointer; transition: 0.2s;
+        }
+        #switch-btn:hover { background-color: rgba(0,0,0,0.7); color: #fff; }
+        
+        #status-box { 
+            background-color: rgba(0,0,0,0.6); padding: 12px; border-radius: 4px; 
+            border-left: 3px solid #d4af37; font-weight: bold; font-size: 12px; 
+            margin-bottom: 15px; text-align: center; color: #e6cdac;
+        }
+        #history-container { flex: 1; display: flex; flex-direction: column; min-height: 100px; overflow: hidden;}
+        #move-history { 
+            flex: 1; background-color: rgba(0,0,0,0.6); border: 1px solid #5c3a21; 
+            border-radius: 4px; padding: 10px; overflow-y: auto; 
+            font-family: 'Courier New', Courier, monospace; font-size: 12px; line-height: 1.6; color: #bbb; 
+        }
+
+        /* --- MAIN STAGE --- */
+        #arena {
+            display: flex; justify-content: center; align-items: stretch;
+            height: 100dvh; width: 100vw; gap: 30px; padding: 15px; box-sizing: border-box;
+        }
+
+        /* CLOCKS & CAPTURED PIECES */
+        .side-panel { display: flex; flex-direction: column; align-items: center; width: 160px; }
+        .opponent-panel { justify-content: flex-start; padding-top: max(15px, env(safe-area-inset-top)); }
+        .player-panel { justify-content: flex-end; padding-bottom: max(15px, env(safe-area-inset-bottom)); }
+
+        .player-info { display: flex; flex-direction: column; align-items: center; width: 100%; position: relative;}
+
+        .player-label {
+            font-size: 13px; text-transform: uppercase; letter-spacing: 2px; font-weight: bold; color: #aaa;
+            background: rgba(0,0,0,0.6); padding: 4px 15px; border-radius: 4px; margin-bottom: 6px;
+            white-space: nowrap; text-align: center;
+        }
+
+        /* Archaic Wooden Clocks */
+        .clock {
+            width: 140px; height: 60px; 
+            background: linear-gradient(145deg, #3d2210, #170d06);
+            border: 4px solid #5c3a21; border-radius: 4px; display: flex; justify-content: center; align-items: center;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.9), 0 6px 12px rgba(0,0,0,0.7);
+            transition: transform 0.1s; position: relative; z-index: 5;
+        }
+        .clock .time {
+            font-family: 'Georgia', 'Times New Roman', serif; font-size: 32px; font-weight: bold;
+            color: #b89947; text-shadow: 1px 2px 2px #000; letter-spacing: 1px;
+        }
+        .clock-active {
+            border-color: #d4af37; 
+            background: linear-gradient(145deg, #4a2a14, #241407);
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.8), 0 0 15px rgba(212, 175, 55, 0.3);
+            transform: scale(1.02);
+        }
+        .clock-active .time { color: #ffe599; text-shadow: 1px 2px 4px #000, 0 0 8px rgba(212, 175, 55, 0.4); }
+
+        .ready-to-start {
+            cursor: pointer; animation: pulse-gold 2s infinite;
+        }
+        @keyframes pulse-gold {
+            0% { box-shadow: inset 0 0 8px rgba(0,0,0,0.8), 0 0 15px rgba(212, 175, 55, 0.1); border-color: #5c3a21;}
+            50% { box-shadow: inset 0 0 8px rgba(0,0,0,0.8), 0 0 25px rgba(212, 175, 55, 0.6); border-color: #d4af37;}
+            100% { box-shadow: inset 0 0 8px rgba(0,0,0,0.8), 0 0 15px rgba(212, 175, 55, 0.1); border-color: #5c3a21;}
+        }
+        .ready-to-start .time { font-size: 26px; color: #ffe599; }
+
+        .captured-area {
+            display: flex; flex-wrap: wrap; align-content: flex-start; justify-content: center;
+            width: 100%; min-height: 80px; margin: 15px 0;
+        }
+        .captured-piece { width: 42px; height: 42px; margin: -8px; transition: transform 0.2s; }
+        .captured-piece.white-piece { filter: brightness(0.75) drop-shadow(3px 4px 4px rgba(0,0,0,0.8)); }
+        .captured-piece.black-piece { filter: brightness(1.1) drop-shadow(3px 4px 4px rgba(0,0,0,0.9)); }
+
+        /* --- THE CHESSBOARD --- */
+        #board-wrapper {
+            height: calc(100dvh - 16px); width: auto; aspect-ratio: 1 / 1; 
+            max-width: calc(100vw - 380px); border: 10px solid #29160a; border-radius: 2px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.9), inset 0 0 10px rgba(0,0,0,0.7);
+            background-color: transparent; box-sizing: border-box; 
+            flex-shrink: 0; align-self: center;
+        }
+        #board { width: 100%; height: 100%; }
+
+        .white-1e1d7 { background: radial-gradient(circle at center, #e6cdac 0%, #c29d6d 100%) !important; box-shadow: inset 0 0 5px rgba(0,0,0,0.1); }
+        .black-3c85d { background: radial-gradient(circle at center, #8a5733 0%, #522d14 100%) !important; box-shadow: inset 0 0 5px rgba(0,0,0,0.2); }
+        .square-55d63 { cursor: pointer; } 
+        
+        .selected-square { background-color: rgba(212, 175, 55, 0.6) !important; }
+        
+        /* The Red Plate effect for the last moved piece */
+        .last-move-square { 
+            background-color: rgba(255, 60, 60, 0.15) !important; 
+            box-shadow: inset 0 -6px 0 rgba(220, 30, 30, 0.85) !important; 
+        }
+
+        .in-check-square { 
+            background: radial-gradient(circle at center, #ff3333 0%, #990000 100%) !important; 
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.6);
+        }
+
+        .legal-move-hint::after {
+            content: ''; position: absolute; top: 50%; left: 50%; width: 28%; height: 28%;
+            background-color: rgba(0, 0, 0, 0.4); border-radius: 50%;
+            transform: translate(-50%, -50%); pointer-events: none; z-index: 10;
+        }
+
+        /* =========================================================
+           MOBILE RESPONSIVENESS LOGIC
+           ========================================================= */
+        @media (max-width: 900px), (max-aspect-ratio: 1.1/1) {
+            #arena {
+                flex-direction: column; justify-content: space-between; gap: 10px;
+                padding: max(60px, env(safe-area-inset-top)) 10px max(15px, env(safe-area-inset-bottom)) 10px;
+            }
+
+            .side-panel { width: 100%; flex-direction: row; padding: 0; align-items: center; justify-content: space-between;}
+            .player-info { width: auto; align-items: flex-start; margin-bottom: 0;}
+            .player-panel .player-info { align-items: flex-end; }
+
+            #board-wrapper {
+                width: 100%; max-width: min(100vw - 20px, 100dvh - 220px); 
+                height: auto; aspect-ratio: 1 / 1; border-width: 6px; margin: 0 auto; 
+            }
+
+            .clock { width: 120px; height: 50px; border-width: 3px; }
+            .clock .time { font-size: 26px; }
+            .ready-to-start .time { font-size: 22px; }
+            .player-label { font-size: 11px; padding: 3px 10px; margin-bottom: 4px; }
+
+            .captured-area { flex: 1; min-height: auto; margin: 0; align-content: center;}
+            .opponent-panel .captured-area { justify-content: flex-start; padding-left: 10px;}
+            .player-panel .captured-area { justify-content: flex-end; padding-right: 10px;}
+            .captured-piece { width: 34px; height: 34px; margin: -5px; }
+
+            /* Wrap the FEN display tightly to the top left so it avoids the UI elements */
+            #fen-display { 
+                top: max(18px, env(safe-area-inset-top)); 
+                left: 15px; bottom: auto; font-size: 10px; 
+                max-width: calc(100vw - 150px);
+            }
+            #top-nav { top: max(12px, env(safe-area-inset-top)); right: 10px; gap: 4px; }
+            .glass-btn { padding: 6px 10px; font-size: 10px; }
+
+            #undo-btn { left: 50%; top: -35px; transform: translateX(-50%); padding: 6px 10px; font-size: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- DYNAMIC SCENARIO TITLE -->
+<div id="fen-display">SCENARIO: STANDARD MATCH</div>
+
+<!-- TOP NAV MENU -->
+<div id="top-nav">
+    <button id="new-btn" class="glass-btn" disabled>New</button>
+    <button id="random-btn" class="glass-btn" disabled>Random</button>
+    <button id="toggle-dashboard-btn" class="glass-btn" style="color: #d4af37;">⚙ Dashboard</button>
+</div>
+
+<!-- FLOATING DASHBOARD PANEL -->
+<div id="dashboard-panel">
+    <h2>Match Setup</h2>
+    
+    <div class="control-group">
+        <label>Engine Difficulty</label>
+        <select id="depth-select">
+            <option value="5">Beginner</option>
+            <option value="10" selected>Intermediate</option>
+            <option value="15">Grandmaster</option>
+        </select>
+    </div>
+
+    <div class="control-group">
+        <label>Time Control (Fast Chess)</label>
+        <select id="time-select">
+            <option value="1">Bullet (1 min + 1s)</option>
+            <option value="5">Blitz (5 min + 3s)</option>
+            <option value="10" selected>Rapid (10 min + 5s)</option>
+            <option value="20">Classical (20 min + 10s)</option>
+        </select>
+    </div>
+
+    <!-- Toggle for Fischer Time Increment -->
+    <div class="checkbox-wrapper">
+        <input type="checkbox" id="increment-toggle" checked>
+        <label for="increment-toggle">Enable Move Time Increment</label>
+    </div>
+
+    <div class="control-group">
+        <label>Acoustic Sound Profile</label>
+        <select id="sound-theme-select">
+            <option value="wood" selected>Classic Wood OTB</option>
+            <option value="arcade">Retro Arcade Synth</option>
+            <option value="digital">Modern Digital Chime</option>
+        </select>
+    </div>
+
+    <div class="control-group" style="margin-top: 10px; border-top: 1px solid #5c3a21; padding-top: 15px;">
+        <label>Pre-Built Scenarios</label>
+        <select id="scenario-select">
+            <optgroup label="Legendary Attacking Games">
+                <option value="1n2kb1r/p4ppp/4q3/4p1B1/4P3/1Q6/PPP2PPP/2KR4 w k - 0 16">Morphy's Opera Game (White)</option>
+                <option value="r4rk1/pp3pbp/1qp3p1/2B5/2NP4/1P3Q2/P4PPP/R3R1K1 b - - 0 17">Fischer's Game of the Century (Black)</option>
+                <option value="1r2k1r1/pbp1np1p/1b3P2/8/8/2P2q2/P4PPP/3R1RK1 w - - 0 21">The Evergreen Game (White)</option>
+                <option value="1r3rk1/p4p1p/2p1p1p1/3nP3/3P4/q4N2/P2Q1PPP/1RR3K1 w - - 0 24">Kasparov vs Topalov Immortal (White)</option>
+            </optgroup>
+            <optgroup label="Famous Traps">
+                <option value="r1bqkb1r/pppp1ppp/2n5/4N3/2B1n3/8/PPPP1PPP/RNBQK2R w KQkq - 0 5">Légal's Mate Trap (White)</option>
+                <option value="r1bqk2r/ppp1bppp/2np1n2/4p1N1/2B1P3/8/PPPP1PPP/RNBQK2R w KQkq - 4 6">Fried Liver Attack (White)</option>
+            </optgroup>
+            <optgroup label="Endgames & Puzzles">
+                <option value="8/4P3/8/5K2/8/8/2p5/2k5 w - - 0 1">The Lucena Position (White)</option>
+                <option value="r1b1k2r/pppp1ppp/8/4P3/1n2q3/5N2/PPP2PPP/R2QKB1R w KQkq - 0 10">Mate in 3 Puzzle (White)</option>
+            </optgroup>
+        </select>
+        <button id="load-btn" disabled>Load Scenario</button>
+    </div>
+
+    <button id="switch-btn" disabled>Play as Opponent Color</button>
+    <div id="status-box">Booting Local Engine...</div>
+
+    <div id="history-container">
+        <label>Match Notation</label>
+        <div id="move-history"></div>
+    </div>
+</div>
+
+<!-- MAIN ARENA -->
+<div id="arena">
+    <!-- Opponent Panel -->
+    <div class="side-panel opponent-panel">
+        <div class="player-info">
+            <span class="player-label" id="opponent-label-name">Intermediate</span>
+            <div id="clock-opponent" class="clock"><span class="time" id="time-opponent">10:00</span></div>
+        </div>
+        <div id="captured-opponent" class="captured-area"></div>
+    </div>
+
+    <!-- Chessboard -->
+    <div id="board-wrapper"><div id="board"></div></div>
+
+    <!-- Player Panel -->
+    <div class="side-panel player-panel">
+        <div id="captured-player" class="captured-area"></div>
+        <div class="player-info">
+            <span class="player-label">You</span>
+            <div style="position: relative;">
+                <div id="clock-player" class="clock"><span class="time" id="time-player">10:00</span></div>
+                <button id="undo-btn" class="glass-btn">⟲ UNDO (2)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var board = null;
+    var game = new Chess();
+    var $status = $('#status-box');
+    var $history = $('#move-history');
+    
+    var isEngineReady = false;
+    var isEngineThinking = false;
+    var humanColor = 'w'; 
+    var stockfishWorker = null;
+    var gameEnded = false; 
+    var initialStartPending = true; 
+    
+    var whiteTime = 600;
+    var blackTime = 600;
+    var timerInterval = null;
+    var selectedSquare = null;
+    var grandmasterUndos = 2;
+
+    // --- AUTOSAVE & RESTORE LOGIC ---
+    function saveGameState() {
+        if (!isEngineReady) return;
+        var state = {
+            pgn: game.pgn(),
+            fen: game.fen(),
+            humanColor: humanColor,
+            whiteTime: whiteTime,
+            blackTime: blackTime,
+            depth: $('#depth-select').val(),
+            timeControl: $('#time-select').val(),
+            useIncrement: $('#increment-toggle').is(':checked'),
+            theme: $('#sound-theme-select').val(),
+            undos: grandmasterUndos,
+            title: $('#fen-display').text(),
+            gameEnded: gameEnded,
+            initialStartPending: initialStartPending
+        };
+        localStorage.setItem('grandmasterChessSave', JSON.stringify(state));
+    }
+
+    function restoreGameState() {
+        var saved = localStorage.getItem('grandmasterChessSave');
+        if (saved) {
+            try {
+                var state = JSON.parse(saved);
+                $('#depth-select').val(state.depth);
+                $('#time-select').val(state.timeControl || "10"); 
+                $('#increment-toggle').prop('checked', state.useIncrement !== false);
+                $('#sound-theme-select').val(state.theme);
+                $('#fen-display').text(state.title);
+                
+                if (!game.load_pgn(state.pgn)) game.load(state.fen);
+                
+                humanColor = state.humanColor;
+                whiteTime = state.whiteTime;
+                blackTime = state.blackTime;
+                grandmasterUndos = state.undos;
+                gameEnded = state.gameEnded || false;
+                
+                // Crucial logic to handle if the game was paused waiting to start
+                initialStartPending = state.initialStartPending !== undefined ? state.initialStartPending : false;
+                
+                board.orientation(humanColor === 'w' ? 'white' : 'black');
+                board.position(game.fen());
+                
+                updateOpponentName();
+                updateUI();
+                updateHighlights();
+                
+                if (initialStartPending) {
+                    $('#time-player').text('START');
+                    $('#clock-player').addClass('ready-to-start');
+                    $('#time-opponent').text(formatTime(getStartingSeconds()));
+                } else if (!game.game_over() && !gameEnded) {
+                    startTimer();
+                    if (game.turn() !== humanColor && !isEngineThinking) {
+                        triggerEngineMove();
+                    }
+                }
+                return true;
+            } catch(e) {
+                console.error("Save state corrupt. Starting fresh.", e);
+                return false;
+            }
+        }
+        return false;
+    }
+
+    // --- TIME CONTROL DYNAMICS ---
+    function getStartingSeconds() {
+        var control = parseInt($('#time-select').val());
+        if (control === 1) return 60;    
+        if (control === 5) return 300;   
+        if (control === 10) return 600;  
+        if (control === 20) return 1200; 
+        return 600; 
+    }
+
+    function getIncrementSeconds() {
+        if (!$('#increment-toggle').is(':checked')) return 0;
+        var control = parseInt($('#time-select').val());
+        if (control === 1) return 1;
+        if (control === 5) return 3;
+        if (control === 10) return 5;
+        if (control === 20) return 10;
+        return 0;
+    }
+
+    function applyIncrement(color) {
+        var inc = getIncrementSeconds();
+        if (inc > 0) {
+            if (color === 'w') whiteTime += inc;
+            else blackTime += inc;
+            updateClocks();
+        }
+    }
+
+    // --- DYNAMIC DASHBOARD & UNDO VISIBILITY ---
+    function updateOpponentName() {
+        var diffText = $("#depth-select option:selected").text().split(" ")[0];
+        $("#opponent-label-name").text(diffText);
+        updateUndoButton();
+    }
+    $('#depth-select, #time-select, #increment-toggle, #sound-theme-select').on('change', function() {
+        updateOpponentName();
+        saveGameState();
+    });
+
+    function updateUndoButton() {
+        var depth = parseInt($('#depth-select').val());
+        if (depth === 15 && grandmasterUndos > 0 && game.history().length >= 2 && !isEngineThinking && !gameEnded && !initialStartPending) {
+            $('#undo-btn').text('⟲ UNDO (' + grandmasterUndos + ')').fadeIn(200);
+        } else {
+            $('#undo-btn').fadeOut(200);
+        }
+    }
+
+    // --- DASHBOARD UI TOGGLE ---
+    $('#toggle-dashboard-btn').on('click', function() { $('#dashboard-panel').fadeToggle(150); });
+    $(document).on('click', function(e) {
+        var $panel = $('#dashboard-panel'); var $btn = $('#toggle-dashboard-btn');
+        if (!$panel.is(e.target) && $panel.has(e.target).length === 0 && !$btn.is(e.target)) { $panel.fadeOut(150); }
+    });
+
+    // --- LOCAL ENGINE ---
+    fetch('https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.js', { cache: 'force-cache' })
+        .then(response => response.text())
+        .then(code => {
+            var blob = new Blob([code], {type: 'application/javascript'});
+            stockfishWorker = new Worker(URL.createObjectURL(blob));
+            stockfishWorker.onmessage = function(event) {
+                var line = event.data;
+                if (line === 'uciok') { stockfishWorker.postMessage('isready'); } 
+                else if (line === 'readyok') {
+                    isEngineReady = true;
+                    disableControls(false);
+                    
+                    if (!restoreGameState()) {
+                        $('#new-btn').click(); 
+                    } else {
+                        if (initialStartPending) {
+                            $status.text("Setup complete. Tap your clock to start.").css({"color": "#d4af37", "border-left-color": "#d4af37"});
+                        } else {
+                            $status.text("Save restored. Good luck.").css({"color": "#d4af37", "border-left-color": "#007acc"});
+                        }
+                    }
+                } 
+                else if (line.startsWith('bestmove')) {
+                    var match = line.match(/^bestmove\s([a-h][1-8])([a-h][1-8])([qrbn])?/);
+                    if (match) {
+                        var move = { from: match[1], to: match[2], promotion: match[3] || 'q' };
+                        var engineMove = game.move(move);
+                        board.position(game.fen());
+                        playChessSound(engineMove);
+                        
+                        applyIncrement(engineMove.color);
+                        
+                        isEngineThinking = false;
+                        disableControls(false);
+                        updateUI();
+                        updateHighlights();
+                        saveGameState();
+                    }
+                }
+            };
+            stockfishWorker.postMessage('uci'); 
+        })
+        .catch(err => { $status.html("<span style='color:#ff5252'>Engine offline link anomaly.</span>"); });
+
+    // --- AUDIO STUDIO ---
+    window.audioCtx = null;
+    function initAudio() {
+        if (!window.audioCtx) window.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (window.audioCtx.state === 'suspended') window.audioCtx.resume();
+    }
+
+    function playSynthSound(type) {
+        try {
+            initAudio();
+            const now = window.audioCtx.currentTime;
+            const profile = $('#sound-theme-select').val();
+            const osc = window.audioCtx.createOscillator();
+            const gain = window.audioCtx.createGain();
+            osc.connect(gain); gain.connect(window.audioCtx.destination);
+            
+            if (type === 'win') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(440, now); osc.frequency.setValueAtTime(554.37, now + 0.1); 
+                osc.frequency.setValueAtTime(659.25, now + 0.2); osc.frequency.setValueAtTime(880, now + 0.3);
+                gain.gain.setValueAtTime(0.5, now); gain.gain.linearRampToValueAtTime(0.01, now + 1.2);
+                osc.start(now); osc.stop(now + 1.2); return;
+            } else if (type === 'lose') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(300, now); osc.frequency.linearRampToValueAtTime(150, now + 0.8);
+                gain.gain.setValueAtTime(0.5, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.8);
+                osc.start(now); osc.stop(now + 0.8); return;
+            }
+
+            if (profile === 'wood') {
+                if (type === 'move') {
+                    osc.type = 'triangle'; osc.frequency.setValueAtTime(110, now); osc.frequency.exponentialRampToValueAtTime(50, now + 0.06);
+                    gain.gain.setValueAtTime(0.6, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.06); osc.start(now); osc.stop(now + 0.06);
+                } else if (type === 'capture') {
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(180, now); osc.frequency.setValueAtTime(90, now + 0.03);
+                    gain.gain.setValueAtTime(0.8, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.07); osc.start(now); osc.stop(now + 0.07);
+                } else if (type === 'check') {
+                    osc.type = 'triangle'; osc.frequency.setValueAtTime(220, now); osc.frequency.setValueAtTime(180, now + 0.1);
+                    gain.gain.setValueAtTime(0.4, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.2); osc.start(now); osc.stop(now + 0.2);
+                }
+            } else if (profile === 'arcade') {
+                if (type === 'move') {
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(200, now); osc.frequency.exponentialRampToValueAtTime(400, now + 0.08);
+                    gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08); osc.start(now); osc.stop(now + 0.08);
+                } else if (type === 'capture') {
+                    osc.type = 'square'; osc.frequency.setValueAtTime(150, now); osc.frequency.linearRampToValueAtTime(50, now + 0.12);
+                    gain.gain.setValueAtTime(0.4, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12); osc.start(now); osc.stop(now + 0.12);
+                } else if (type === 'check') {
+                    osc.type = 'square'; osc.frequency.setValueAtTime(700, now); osc.frequency.setValueAtTime(900, now + 0.08);
+                    gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.25); osc.start(now); osc.stop(now + 0.25);
+                }
+            } else if (profile === 'digital') {
+                if (type === 'move') {
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(880, now);
+                    gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.005, now + 0.15); osc.start(now); osc.stop(now + 0.15);
+                } else if (type === 'capture') {
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(1200, now); osc.frequency.exponentialRampToValueAtTime(600, now + 0.12);
+                    gain.gain.setValueAtTime(0.25, now); gain.gain.exponentialRampToValueAtTime(0.005, now + 0.12); osc.start(now); osc.stop(now + 0.12);
+                } else if (type === 'check') {
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(587.33, now); osc.frequency.setValueAtTime(659.25, now + 0.08); osc.frequency.setValueAtTime(880, now + 0.16);
+                    gain.gain.setValueAtTime(0.3, now); gain.gain.linearRampToValueAtTime(0.005, now + 0.35); osc.start(now); osc.stop(now + 0.35);
+                }
+            }
+        } catch(e) {}
+    }
+
+    function playChessSound(moveObj) {
+        if (game.game_over()) return; 
+        if (game.in_check()) playSynthSound('check');
+        else if (moveObj && moveObj.captured) playSynthSound('capture');
+        else playSynthSound('move');
+    }
+
+    // --- TIMERS ENGINE ---
+    function formatTime(seconds) {
+        var m = Math.floor(seconds / 60); var s = seconds % 60;
+        return m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    function updateClocks() {
+        if (initialStartPending) return; 
+
+        var topTime = (humanColor === 'w') ? blackTime : whiteTime; 
+        var bottomTime = (humanColor === 'w') ? whiteTime : blackTime;
+        $('#time-opponent').text(formatTime(topTime));
+        $('#time-player').text(formatTime(bottomTime));
+
+        if (!game.game_over() && !gameEnded) {
+            if (game.turn() === humanColor) {
+                $('#clock-player').addClass('clock-active'); $('#clock-opponent').removeClass('clock-active');
+            } else {
+                $('#clock-opponent').addClass('clock-active'); $('#clock-player').removeClass('clock-active');
+            }
+        } else {
+            $('#clock-player, #clock-opponent').removeClass('clock-active');
+        }
+    }
+
+    function startTimer() {
+        clearInterval(timerInterval); updateClocks();
+        timerInterval = setInterval(function() {
+            if (game.game_over() || gameEnded || initialStartPending) return;
+            if (game.turn() === 'w') { whiteTime--; if (whiteTime <= 0) handleTimeout('White'); } 
+            else { blackTime--; if (blackTime <= 0) handleTimeout('Black'); }
+            updateClocks();
+            saveGameState(); 
+        }, 1000);
+    }
+
+    function handleTimeout(color) { clearInterval(timerInterval); updateUI(); saveGameState(); }
+
+    // --- SCATTERED CAPTURED PIECES ---
+    function seededRandom(seed) { var x = Math.sin(seed) * 10000; return x - Math.floor(x); }
+
+    function updateCapturedPieces() {
+        var counts = { w: { p: 8, n: 2, b: 2, r: 2, q: 1 }, b: { p: 8, n: 2, b: 2, r: 2, q: 1 } };
+        var boardState = game.board();
+        for (var i = 0; i < 8; i++) {
+            for (var j = 0; j < 8; j++) {
+                if (boardState[i][j]) { counts[boardState[i][j].color][boardState[i][j].type]--; }
+            }
+        }
+
+        function getPieceHTML(color, type, amount, startSeed) {
+            var html = '';
+            var c = color === 'w' ? 'w' : 'b'; var p = type.toUpperCase();
+            var src = config.pieceTheme(c + p); 
+            var styleClass = c === 'w' ? 'white-piece' : 'black-piece';
+            
+            for(var k=0; k < Math.max(0, amount); k++) {
+                var rot = Math.floor(seededRandom(startSeed + k) * 90) - 45;
+                html += `<img class="captured-piece ${styleClass}" src="${src}" style="transform: rotate(${rot}deg);">`;
+            }
+            return html;
+        }
+
+        var humanCaptured = ''; var oppCaptured = ''; 
+        var oppColor = humanColor === 'w' ? 'b' : 'w';
+        var pieceOrder = ['q','r','b','n','p'];
+        var seedTracker = 1;
+        
+        pieceOrder.forEach(function(p) {
+            if (counts[oppColor][p] > 0) humanCaptured += getPieceHTML(oppColor, p, counts[oppColor][p], seedTracker++);
+            if (counts[humanColor][p] > 0) oppCaptured += getPieceHTML(humanColor, p, counts[humanColor][p], seedTracker++);
+        });
+        
+        $('#captured-player').html(humanCaptured);
+        $('#captured-opponent').html(oppCaptured);
+    }
+
+    // --- HIGHLIGHTS ---
+    function updateHighlights() {
+        $('#board .square-55d63').removeClass('selected-square').removeClass('legal-move-hint').removeClass('last-move-square').removeClass('in-check-square');
+        
+        if (selectedSquare) {
+            $('#board .square-' + selectedSquare).addClass('selected-square');
+            var moves = game.moves({ square: selectedSquare, verbose: true });
+            for (var i = 0; i < moves.length; i++) { $('#board .square-' + moves[i].to).addClass('legal-move-hint'); }
+        }
+
+        var history = game.history({ verbose: true });
+        if (history.length > 0) {
+            var lastMove = history[history.length - 1];
+            $('#board .square-' + lastMove.from).addClass('last-move-square');
+            $('#board .square-' + lastMove.to).addClass('last-move-square');
+        }
+
+        if (game.in_check() || game.in_checkmate()) {
+            var turn = game.turn();
+            var boardState = game.board();
+            for (var r = 0; r < 8; r++) {
+                for (var c = 0; c < 8; c++) {
+                    if (boardState[r][c] && boardState[r][c].type === 'k' && boardState[r][c].color === turn) {
+                        var kingSquare = "abcdefgh"[c] + (8 - r);
+                        $('#board .square-' + kingSquare).addClass('in-check-square');
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    // --- CLICK TO MOVE & START LISTENER ---
+    $('#clock-player').on('click', function() {
+        if (initialStartPending && isEngineReady) {
+            initAudio();
+            initialStartPending = false;
+            $(this).removeClass('ready-to-start');
+            
+            updateClocks();
+            startTimer();
+            updateUI();
+            
+            // If human opted to play as black, trigger the engine's first move
+            if (game.turn() !== humanColor) {
+                triggerEngineMove();
+            }
+            saveGameState();
+        }
+    });
+
+    $('#board').on('click', '.square-55d63', function() {
+        initAudio();
+        if (initialStartPending) return; 
+        if (game.game_over() || isEngineThinking || whiteTime <= 0 || blackTime <= 0) return;
+        if (game.turn() !== humanColor) return;
+        
+        var square = $(this).attr('data-square');
+        
+        if (selectedSquare) {
+            var moves = game.moves({ square: selectedSquare, verbose: true });
+            var isLegalMove = moves.some(m => m.to === square);
+            
+            if (isLegalMove) {
+                var move = game.move({ from: selectedSquare, to: square, promotion: 'q' });
+                selectedSquare = null;
+                board.position(game.fen());
+                playChessSound(move);
+                
+                applyIncrement(move.color);
+
+                updateUI();
+                updateHighlights();
+                saveGameState();
+                triggerEngineMove();
+                return;
+            }
+            var piece = game.get(square);
+            if (piece && piece.color === humanColor) {
+                selectedSquare = square; updateHighlights(); return;
+            }
+            selectedSquare = null; updateHighlights();
+        } else {
+            var piece = game.get(square);
+            if (piece && piece.color === humanColor) { selectedSquare = square; updateHighlights(); }
+        }
+    });
+
+    // --- THE GRANDMASTER UNDO ---
+    $('#undo-btn').on('click', function() {
+        if (grandmasterUndos > 0 && game.history().length >= 2 && !isEngineThinking && !initialStartPending) {
+            initAudio(); grandmasterUndos--;
+            game.undo(); game.undo(); 
+            board.position(game.fen());
+            selectedSquare = null;
+            playSynthSound('move'); updateUI(); updateHighlights(); saveGameState();
+        }
+    });
+
+    // --- WORKER HANDLERS & MATCH LOGIC ---
+    function triggerEngineMove() {
+        if (game.game_over() || whiteTime <= 0 || blackTime <= 0) return;
+        isEngineThinking = true;
+        disableControls(true);
+        updateUndoButton(); 
+        $status.text("Stockfish is calculating...");
+        
+        var depth = parseInt($('#depth-select').val());
+        stockfishWorker.postMessage('position fen ' + game.fen());
+        stockfishWorker.postMessage('go depth ' + depth);
+    }
+
+    function updateUI () {
+        if (initialStartPending) return; 
+        
+        updateCapturedPieces();
+        updateClocks();
+        updateUndoButton(); 
+        
+        if (game.game_over() || whiteTime <= 0 || blackTime <= 0) {
+            clearInterval(timerInterval);
+            if (!gameEnded) {
+                gameEnded = true;
+                var humanWon = false; var draw = false;
+                
+                if (whiteTime <= 0) humanWon = (humanColor === 'b');
+                else if (blackTime <= 0) humanWon = (humanColor === 'w');
+                else if (game.in_checkmate()) humanWon = (game.turn() !== humanColor);
+                else draw = true;
+
+                if (draw) {
+                    playSynthSound('lose');
+                    $status.text('Game Ended in a Draw.');
+                    $status.css('border-left-color', '#888');
+                } else if (humanWon) {
+                    playSynthSound('win');
+                    confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 }, colors: ['#d4af37', '#ff0000', '#00ff00', '#0000ff'] });
+                    $status.text('Brilliant! You Won!');
+                    $status.css('border-left-color', '#00ff00');
+                } else {
+                    playSynthSound('lose');
+                    $status.text('You were defeated.');
+                    $status.css('border-left-color', '#ff0000');
+                }
+            }
+        } else {
+            var oppName = $("#opponent-label-name").text();
+            var whoseTurn = (game.turn() === humanColor) ? "Your turn" : oppName + "'s turn";
+            $status.text(whoseTurn);
+            $status.css('border-left-color', '#007acc');
+            if (game.in_check()) $status.text(whoseTurn + ' (IN CHECK!)');
+        }
+
+        var history = game.history(); var historyHTML = "";
+        for (var i = 0; i < history.length; i += 2) {
+            var moveNum = (i / 2) + 1; var blackMove = history[i+1] ? history[i+1] : "";
+            historyHTML += moveNum + ". " + history[i] + " &nbsp;&nbsp;&nbsp;" + blackMove + "<br>";
+        }
+        if (history.length === 0) historyHTML = "<em>Match initialized...</em>";
+        $history.html(historyHTML);
+        var historyDiv = document.getElementById('move-history'); historyDiv.scrollTop = historyDiv.scrollHeight;
+    }
+
+    function disableControls(disabled) {
+        if (!isEngineReady) return; 
+        $('#new-btn, #load-btn, #random-btn, #switch-btn, #scenario-select, #depth-select, #time-select, #increment-toggle').prop('disabled', disabled);
+    }
+
+    function loadPosition(fen, matchTitle) {
+        if (isEngineThinking) return;
+        selectedSquare = null;
+        gameEnded = false; 
+        initialStartPending = true; 
+        clearInterval(timerInterval);
+        
+        game.load(fen);
+        
+        humanColor = game.turn(); 
+        board.orientation(humanColor === 'w' ? 'white' : 'black');
+        board.position(fen);
+        
+        var clockTime = getStartingSeconds();
+        whiteTime = clockTime; 
+        blackTime = clockTime;
+        grandmasterUndos = 2; 
+        
+        $('#fen-display').text(matchTitle || "SCENARIO: STANDARD MATCH");
+        
+        updateOpponentName();
+        updateHighlights();
+        updateCapturedPieces();
+        
+        // Push board to the "Wait to start" phase
+        $status.text("Setup complete. Tap your clock to start.").css({"color": "#d4af37", "border-left-color": "#d4af37"});
+        $('#time-player').text('START');
+        $('#clock-player').addClass('ready-to-start');
+        $('#time-opponent').text(formatTime(clockTime));
+        $('#clock-player, #clock-opponent').removeClass('clock-active');
+        
+        saveGameState();
+    }
+
+    // EVENT HANDLERS
+    $('#new-btn').on('click', function() { initAudio(); loadPosition('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', "SCENARIO: STANDARD MATCH"); });
+    
+    $('#load-btn').on('click', function() { 
+        initAudio(); 
+        var title = $('#scenario-select option:selected').text();
+        loadPosition($('#scenario-select').val(), "SCENARIO: " + title); 
+        $('#dashboard-panel').fadeOut(150);
+    });
+    
+    $('#random-btn').on('click', function() {
+        initAudio();
+        var options = $('#scenario-select option'); var randomIdx = Math.floor(Math.random() * options.length);
+        $('#scenario-select').prop('selectedIndex', randomIdx); 
+        var title = options.eq(randomIdx).text();
+        loadPosition(options.eq(randomIdx).val(), "SCENARIO: " + title);
+    });
+
+    $('#switch-btn').on('click', function() {
+        initAudio(); if (isEngineThinking || game.game_over()) return;
+        selectedSquare = null;
+        humanColor = (humanColor === 'w') ? 'b' : 'w'; 
+        board.orientation(humanColor === 'w' ? 'white' : 'black'); 
+        
+        if (initialStartPending) {
+            updateCapturedPieces();
+            $('#time-player').text('START');
+        } else {
+            triggerEngineMove(); 
+        }
+        saveGameState();
+    });
+
+    var config = {
+        pieceTheme: function(piece) { return 'https://images.chesscomfiles.com/chess-themes/pieces/wood/150/' + piece.toLowerCase() + '.png'; },
+        draggable: false, position: 'empty'
+    };
+    board = Chessboard('board', config);
+    
+    var resizeDebounce;
+    $(window).on('resize orientationchange', function() {
+        clearTimeout(resizeDebounce);
+        resizeDebounce = setTimeout(function() { if(board) board.resize(); updateHighlights(); }, 150);
+    });
+
+    setTimeout(function() { board.resize(); updateHighlights(); }, 150);
+    updateOpponentName();
+</script>
+</body>
+</html>
