@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Grandmaster Dashboard - Premium Edition</title>
+    <title>Grandmaster Dashboard - Endless Theory</title>
     
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -36,8 +36,7 @@
             font-size: 12px; color: rgba(255, 255, 255, 0.4);
             text-transform: uppercase; letter-spacing: 2px; font-weight: bold;
             pointer-events: none; z-index: 10; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
-            max-width: 250px; /* Forces wrapping on long names */
-            line-height: 1.4; word-wrap: break-word;
+            max-width: 250px; line-height: 1.4; word-wrap: break-word;
         }
 
         /* --- TOP RIGHT FLOATING MENU --- */
@@ -56,7 +55,6 @@
         .glass-btn:hover:not(:disabled) { background: rgba(0, 122, 204, 0.9); border-color: #007acc; color: white; transform: translateY(-1px); }
         .glass-btn:disabled { background: rgba(10, 10, 10, 0.6); color: #555; cursor: not-allowed; }
 
-        /* The Grandmaster Undo Button */
         #undo-btn {
             display: none; 
             position: absolute; left: calc(100% + 15px); top: 50%; transform: translateY(-50%);
@@ -88,7 +86,6 @@
         }
         select:focus { border-color: #d4af37; box-shadow: 0 0 5px rgba(212,175,55,0.4); }
         
-        /* Custom Checkbox for Time Increment */
         .checkbox-wrapper { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; cursor: pointer; }
         .checkbox-wrapper input[type="checkbox"] { cursor: pointer; width: 16px; height: 16px; accent-color: #d4af37; }
         .checkbox-wrapper label { margin: 0; font-size: 11px; cursor: pointer; color: #e6cdac; }
@@ -126,7 +123,7 @@
         }
 
         /* CLOCKS & CAPTURED PIECES */
-        .side-panel { display: flex; flex-direction: column; align-items: center; width: 160px; }
+        .side-panel { display: flex; flex-direction: column; align-items: center; width: 180px; transition: opacity 0.3s;}
         .opponent-panel { justify-content: flex-start; padding-top: max(15px, env(safe-area-inset-top)); }
         .player-panel { justify-content: flex-end; padding-bottom: max(15px, env(safe-area-inset-bottom)); }
 
@@ -138,16 +135,15 @@
             white-space: nowrap; text-align: center;
         }
 
-        /* Archaic Wooden Clocks */
         .clock {
-            width: 140px; height: 60px; 
+            width: 150px; height: 65px; 
             background: linear-gradient(145deg, #3d2210, #170d06);
             border: 4px solid #5c3a21; border-radius: 4px; display: flex; justify-content: center; align-items: center;
             box-shadow: inset 0 0 10px rgba(0,0,0,0.9), 0 6px 12px rgba(0,0,0,0.7);
             transition: transform 0.1s; position: relative; z-index: 5;
         }
         .clock .time {
-            font-family: 'Georgia', 'Times New Roman', serif; font-size: 32px; font-weight: bold;
+            font-family: 'Georgia', 'Times New Roman', serif; font-size: 34px; font-weight: bold;
             color: #b89947; text-shadow: 1px 2px 2px #000; letter-spacing: 1px;
         }
         .clock-active {
@@ -158,9 +154,7 @@
         }
         .clock-active .time { color: #ffe599; text-shadow: 1px 2px 4px #000, 0 0 8px rgba(212, 175, 55, 0.4); }
 
-        .ready-to-start {
-            cursor: pointer; animation: pulse-gold 2s infinite;
-        }
+        .ready-to-start { cursor: pointer; animation: pulse-gold 2s infinite; }
         @keyframes pulse-gold {
             0% { box-shadow: inset 0 0 8px rgba(0,0,0,0.8), 0 0 15px rgba(212, 175, 55, 0.1); border-color: #5c3a21;}
             50% { box-shadow: inset 0 0 8px rgba(0,0,0,0.8), 0 0 25px rgba(212, 175, 55, 0.6); border-color: #d4af37;}
@@ -179,7 +173,7 @@
         /* --- THE CHESSBOARD --- */
         #board-wrapper {
             height: calc(100dvh - 16px); width: auto; aspect-ratio: 1 / 1; 
-            max-width: calc(100vw - 380px); border: 10px solid #29160a; border-radius: 2px;
+            max-width: calc(100vw - 420px); border: 10px solid #29160a; border-radius: 2px;
             box-shadow: 0 15px 40px rgba(0,0,0,0.9), inset 0 0 10px rgba(0,0,0,0.7);
             background-color: transparent; box-sizing: border-box; 
             flex-shrink: 0; align-self: center;
@@ -191,23 +185,36 @@
         .square-55d63 { cursor: pointer; } 
         
         .selected-square { background-color: rgba(212, 175, 55, 0.6) !important; }
-        
-        /* The Red Plate effect for the last moved piece */
         .last-move-square { 
             background-color: rgba(255, 60, 60, 0.15) !important; 
             box-shadow: inset 0 -6px 0 rgba(220, 30, 30, 0.85) !important; 
         }
-
         .in-check-square { 
             background: radial-gradient(circle at center, #ff3333 0%, #990000 100%) !important; 
             box-shadow: inset 0 0 15px rgba(0,0,0,0.6);
         }
-
         .legal-move-hint::after {
             content: ''; position: absolute; top: 50%; left: 50%; width: 28%; height: 28%;
             background-color: rgba(0, 0, 0, 0.4); border-radius: 50%;
             transform: translate(-50%, -50%); pointer-events: none; z-index: 10;
         }
+
+        /* --- THEORY EXPLORER NAVIGATION --- */
+        #opening-nav {
+            display: none; width: 100%; flex-direction: column; align-items: center; gap: 12px;
+            background: linear-gradient(145deg, #1a0f05, #2b1700); border: 2px solid #5c3a21;
+            padding: 20px 15px; border-radius: 8px; box-sizing: border-box;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.9), inset 0 0 10px rgba(0,0,0,0.8);
+        }
+        #opening-nav h3 { margin: 0; color: #d4af37; font-size: 13px; text-transform: uppercase; letter-spacing: 2px; text-shadow: 1px 1px 2px #000; text-align: center; }
+        #opening-step { color: #e6cdac; font-family: monospace; font-size: 16px; font-weight: bold; background: rgba(0,0,0,0.6); padding: 6px 12px; border-radius: 4px; border: 1px solid #5c3a21; width: 60px; text-align: center;}
+        
+        .nav-btn-row { display: flex; width: 100%; gap: 10px; justify-content: center; }
+        .nav-btn { flex: 1; padding: 12px; font-size: 14px !important;}
+        
+        /* Learning Mode specific element visibility */
+        body.is-learning .player-info, body.is-learning .captured-area { display: none !important; }
+        body.is-learning .player-panel #opening-nav { display: flex; }
 
         /* =========================================================
            MOBILE RESPONSIVENESS LOGIC
@@ -222,10 +229,14 @@
             .player-info { width: auto; align-items: flex-start; margin-bottom: 0;}
             .player-panel .player-info { align-items: flex-end; }
 
+            /* In mobile learning mode, don't allocate height to hidden clocks */
+            body.is-learning .side-panel { display: none; }
+
             #board-wrapper {
                 width: 100%; max-width: min(100vw - 20px, 100dvh - 220px); 
                 height: auto; aspect-ratio: 1 / 1; border-width: 6px; margin: 0 auto; 
             }
+            body.is-learning #board-wrapper { max-width: min(100vw - 20px, 100dvh - 150px); }
 
             .clock { width: 120px; height: 50px; border-width: 3px; }
             .clock .time { font-size: 26px; }
@@ -237,16 +248,22 @@
             .player-panel .captured-area { justify-content: flex-end; padding-right: 10px;}
             .captured-piece { width: 34px; height: 34px; margin: -5px; }
 
-            /* Wrap the FEN display tightly to the top left so it avoids the UI elements */
-            #fen-display { 
-                top: max(18px, env(safe-area-inset-top)); 
-                left: 15px; bottom: auto; font-size: 10px; 
-                max-width: calc(100vw - 150px);
-            }
+            #fen-display { top: max(18px, env(safe-area-inset-top)); left: 15px; bottom: auto; font-size: 10px; max-width: calc(100vw - 150px);}
             #top-nav { top: max(12px, env(safe-area-inset-top)); right: 10px; gap: 4px; }
             .glass-btn { padding: 6px 10px; font-size: 10px; }
 
             #undo-btn { left: 50%; top: -35px; transform: translateX(-50%); padding: 6px 10px; font-size: 10px; }
+
+            /* Mobile-specific adjustments for the Theory Explorer */
+            #opening-nav {
+                position: static; background: transparent; border: none; box-shadow: none; 
+                padding: 10px 0 0 0; margin-top: 0; display: none; /* overrides right panel injection */
+            }
+            body.is-learning #mobile-opening-wrapper #opening-nav { display: flex; flex-direction: row; gap: 10px;}
+            #opening-nav h3, #opening-nav hr { display: none; }
+            .nav-btn-row { width: auto; gap: 5px; }
+            #opening-step { font-size: 13px; padding: 10px 5px; width: 45px;}
+            #play-from-here-btn { flex: 1; padding: 12px; font-size: 11px; }
         }
     </style>
 </head>
@@ -285,7 +302,6 @@
         </select>
     </div>
 
-    <!-- Toggle for Fischer Time Increment -->
     <div class="checkbox-wrapper">
         <input type="checkbox" id="increment-toggle" checked>
         <label for="increment-toggle">Enable Move Time Increment</label>
@@ -301,8 +317,25 @@
     </div>
 
     <div class="control-group" style="margin-top: 10px; border-top: 1px solid #5c3a21; padding-top: 15px;">
-        <label>Pre-Built Scenarios</label>
+        <label>Scenarios & Live Library</label>
         <select id="scenario-select">
+            <!-- 🌐 THIS IS THE NEW DYNAMIC GROUP -->
+            <optgroup id="online-library" label="🌐 Live Online Library">
+                <option value="loading" disabled>Loading from internet...</option>
+            </optgroup>
+            
+            <optgroup label="Learn Famous Openings">
+                <option value="OPENING:ruy_lopez">Ruy Lopez</option>
+                <option value="OPENING:italian">Italian Game</option>
+                <option value="OPENING:sicilian">Sicilian Defense</option>
+                <option value="OPENING:karpov_caro_kann">Anatoly Karpov's Caro-Kann</option>
+                <option value="OPENING:tal_modern_benoni">Mikhail Tal's Modern Benoni</option>
+                <option value="OPENING:fischer_sozin">Bobby Fischer's Sozin Attack</option>
+                <option value="OPENING:kasparov_kings_indian">Garry Kasparov's King's Indian</option>
+                <option value="OPENING:carlsen_catalan">Magnus Carlsen's Catalan</option>
+            </optgroup>
+
+            <!-- 🔙 RESTORED EXACTLY AS THEY WERE -->
             <optgroup label="Legendary Attacking Games">
                 <option value="1n2kb1r/p4ppp/4q3/4p1B1/4P3/1Q6/PPP2PPP/2KR4 w k - 0 16">Morphy's Opera Game (White)</option>
                 <option value="r4rk1/pp3pbp/1qp3p1/2B5/2NP4/1P3Q2/P4PPP/R3R1K1 b - - 0 17">Fischer's Game of the Century (Black)</option>
@@ -317,8 +350,21 @@
                 <option value="8/4P3/8/5K2/8/8/2p5/2k5 w - - 0 1">The Lucena Position (White)</option>
                 <option value="r1b1k2r/pppp1ppp/8/4P3/1n2q3/5N2/PPP2PPP/R2QKB1R w KQkq - 0 10">Mate in 3 Puzzle (White)</option>
             </optgroup>
+            <optgroup label="Mine">
+                <option value="2r1rbk1/1bq2pp1/p4n1p/2pPpP2/1pP1P3/2nBB1NP/P1QN2P1/2R2RK1 w - - 0 1">Karpov’s 5 Golden Rules (White)</option>
+                
+            </optgroup>
         </select>
         <button id="load-btn" disabled>Load Scenario</button>
+    </div>
+
+    <!-- 🌐 NEW: PASTE CUSTOM FEN BOX -->
+    <div class="control-group" style="margin-top: 5px; border-top: 1px solid #5c3a21; padding-top: 15px;">
+        <label>Import FEN from Web</label>
+        <div style="display: flex; gap: 5px;">
+            <input type="text" id="custom-fen-input" placeholder="Paste FEN string here..." autocomplete="off" spellcheck="false" style="flex: 1; background: rgba(0,0,0,0.5); color: #e6cdac; border: 1px solid #5c3a21; border-radius: 4px; padding: 8px; font-size: 11px; outline: none; font-family: monospace;">
+            <button id="load-custom-fen-btn" class="glass-btn" style="background: #007acc; border-color: #005a9e; padding: 8px 12px;">LOAD</button>
+        </div>
     </div>
 
     <button id="switch-btn" disabled>Play as Opponent Color</button>
@@ -341,8 +387,13 @@
         <div id="captured-opponent" class="captured-area"></div>
     </div>
 
-    <!-- Chessboard -->
-    <div id="board-wrapper"><div id="board"></div></div>
+    <!-- Center Stage -->
+    <div style="display:flex; flex-direction: column; align-items: center; justify-content: center; position: relative;">
+        <div id="board-wrapper"><div id="board"></div></div>
+        
+        <!-- Mobile Injection Wrapper for Theory Explorer -->
+        <div id="mobile-opening-wrapper" style="width: 100%;"></div>
+    </div>
 
     <!-- Player Panel -->
     <div class="side-panel player-panel">
@@ -353,6 +404,19 @@
                 <div id="clock-player" class="clock"><span class="time" id="time-player">10:00</span></div>
                 <button id="undo-btn" class="glass-btn">⟲ UNDO (2)</button>
             </div>
+        </div>
+        
+        <!-- Desktop Injection Wrapper for Theory Explorer -->
+        <!-- Placed here so it assumes the space of the hidden clocks elegantly -->
+        <div id="opening-nav">
+            <h3>Theory Explorer</h3>
+            <div class="nav-btn-row">
+                <button id="prev-move-btn" class="glass-btn nav-btn">⬅</button>
+                <span id="opening-step">0 / 0</span>
+                <button id="next-move-btn" class="glass-btn nav-btn">➡</button>
+            </div>
+            <hr style="width: 100%; border: 0; border-top: 1px solid rgba(212, 175, 55, 0.2); margin: 8px 0;">
+            <button id="play-from-here-btn" class="glass-btn" style="width: 100%; background: #007acc; color: white;">♙ Play From Here</button>
         </div>
     </div>
 </div>
@@ -376,6 +440,36 @@
     var selectedSquare = null;
     var grandmasterUndos = 2;
 
+    // --- ENDLESS LEARNING MODE VARIABLES ---
+    var isLearningMode = false;
+    var isGeneratingTheory = false; 
+    var currentOpeningKey = null;
+    var openingMoves = [];
+    var openingCurrentIndex = 0;
+
+    // Grandmaster Innovations Library
+    const OPENINGS_DB = {
+        "ruy_lopez": ["e4", "e5", "Nf3", "Nc6", "Bb5"],
+        "italian": ["e4", "e5", "Nf3", "Nc6", "Bc4"],
+        "sicilian": ["e4", "c5"],
+        "karpov_caro_kann": ["e4", "c6", "d4", "d5", "Nd2", "dxe4", "Nxe4", "Nd7", "Bc4", "Ngf6", "Ng5", "e6", "Qe2", "Nb6", "Bd3", "h6", "N5f3", "c5", "dxc5", "Bxc5"],
+        "kasparov_kings_indian": ["d4", "Nf6", "c4", "g6", "Nc3", "Bg7", "e4", "d6", "Nf3", "O-O", "Be2", "e5", "O-O", "Nc6", "d5", "Ne7", "Ne1", "Nd7", "Nd3", "f5", "Bd2", "Nf6"],
+        "fischer_sozin": ["e4", "c5", "Nf3", "d6", "d4", "cxd4", "Nxd4", "Nf6", "Nc3", "a6", "Bc4", "e6", "Bb3", "b5", "O-O", "Be7", "Qf3", "Qc7", "Qg3", "O-O", "Bh6", "Ne8"],
+        "tal_modern_benoni": ["d4", "Nf6", "c4", "c5", "d5", "e6", "Nc3", "exd5", "cxd5", "d6", "e4", "g6", "Nf3", "Bg7", "Be2", "O-O", "O-O", "Re8", "Nd2", "Na6", "Re1", "Nc7"],
+        "carlsen_catalan": ["d4", "Nf6", "c4", "e6", "g3", "d5", "Bg2", "Be7", "Nf3", "O-O", "O-O", "dxc4", "Qc2", "a6", "Qxc4", "b5", "Qc2", "Bb7", "Bd2", "Nc6"]
+    };
+
+    // Responsive DOM routing for the Nav Controls
+    function routeOpeningNav() {
+        if ($(window).width() <= 900 || ($(window).width() / $(window).height()) <= 1.1) {
+            $('#opening-nav').appendTo('#mobile-opening-wrapper');
+        } else {
+            $('#opening-nav').appendTo('.player-panel');
+        }
+    }
+    $(window).on('resize orientationchange', routeOpeningNav);
+    routeOpeningNav();
+
     // --- AUTOSAVE & RESTORE LOGIC ---
     function saveGameState() {
         if (!isEngineReady) return;
@@ -392,7 +486,11 @@
             undos: grandmasterUndos,
             title: $('#fen-display').text(),
             gameEnded: gameEnded,
-            initialStartPending: initialStartPending
+            initialStartPending: initialStartPending,
+            isLearningMode: isLearningMode,
+            openingKey: currentOpeningKey,
+            openingMoves: openingMoves,
+            openingCurrentIndex: openingCurrentIndex
         };
         localStorage.setItem('grandmasterChessSave', JSON.stringify(state));
     }
@@ -408,39 +506,56 @@
                 $('#sound-theme-select').val(state.theme);
                 $('#fen-display').text(state.title);
                 
-                if (!game.load_pgn(state.pgn)) game.load(state.fen);
-                
-                humanColor = state.humanColor;
-                whiteTime = state.whiteTime;
-                blackTime = state.blackTime;
-                grandmasterUndos = state.undos;
-                gameEnded = state.gameEnded || false;
-                
-                // Crucial logic to handle if the game was paused waiting to start
-                initialStartPending = state.initialStartPending !== undefined ? state.initialStartPending : false;
-                
-                board.orientation(humanColor === 'w' ? 'white' : 'black');
-                board.position(game.fen());
-                
-                updateOpponentName();
-                updateUI();
-                updateHighlights();
-                
-                if (initialStartPending) {
-                    $('#time-player').text('START');
-                    $('#clock-player').addClass('ready-to-start');
-                    $('#time-opponent').text(formatTime(getStartingSeconds()));
-                } else if (!game.game_over() && !gameEnded) {
-                    startTimer();
-                    if (game.turn() !== humanColor && !isEngineThinking) {
-                        triggerEngineMove();
+                isLearningMode = state.isLearningMode || false;
+
+                if (isLearningMode) {
+                    currentOpeningKey = state.openingKey;
+                    openingMoves = state.openingMoves || OPENINGS_DB[currentOpeningKey] || [];
+                    openingCurrentIndex = state.openingCurrentIndex || 0;
+                    
+                    if (!game.load_pgn(state.pgn)) game.load(state.fen);
+                    
+                    humanColor = 'w';
+                    board.orientation('white');
+                    board.position(game.fen());
+                    
+                    $('body').addClass('is-learning');
+                    
+                    $status.text("Endless Explorer. Step or let Engine play.").css({"color": "#d4af37", "border-left-color": "#d4af37"});
+                    updateLearningUI();
+                    updateHighlights();
+                } else {
+                    $('body').removeClass('is-learning');
+
+                    if (!game.load_pgn(state.pgn)) game.load(state.fen);
+                    
+                    humanColor = state.humanColor;
+                    whiteTime = state.whiteTime;
+                    blackTime = state.blackTime;
+                    grandmasterUndos = state.undos;
+                    gameEnded = state.gameEnded || false;
+                    initialStartPending = state.initialStartPending !== undefined ? state.initialStartPending : false;
+                    
+                    board.orientation(humanColor === 'w' ? 'white' : 'black');
+                    board.position(game.fen());
+                    
+                    updateOpponentName();
+                    updateUI();
+                    updateHighlights();
+                    
+                    if (initialStartPending) {
+                        $('#time-player').text('START');
+                        $('#clock-player').addClass('ready-to-start');
+                        $('#time-opponent').text(formatTime(getStartingSeconds()));
+                    } else if (!game.game_over() && !gameEnded) {
+                        startTimer();
+                        if (game.turn() !== humanColor && !isEngineThinking) {
+                            triggerEngineMove();
+                        }
                     }
                 }
                 return true;
-            } catch(e) {
-                console.error("Save state corrupt. Starting fresh.", e);
-                return false;
-            }
+            } catch(e) { return false; }
         }
         return false;
     }
@@ -466,6 +581,7 @@
     }
 
     function applyIncrement(color) {
+        if (isLearningMode) return;
         var inc = getIncrementSeconds();
         if (inc > 0) {
             if (color === 'w') whiteTime += inc;
@@ -474,8 +590,9 @@
         }
     }
 
-    // --- DYNAMIC DASHBOARD & UNDO VISIBILITY ---
+    // --- DYNAMIC DASHBOARD ---
     function updateOpponentName() {
+        if (isLearningMode) return;
         var diffText = $("#depth-select option:selected").text().split(" ")[0];
         $("#opponent-label-name").text(diffText);
         updateUndoButton();
@@ -486,6 +603,7 @@
     });
 
     function updateUndoButton() {
+        if (isLearningMode) { $('#undo-btn').fadeOut(200); return; }
         var depth = parseInt($('#depth-select').val());
         if (depth === 15 && grandmasterUndos > 0 && game.history().length >= 2 && !isEngineThinking && !gameEnded && !initialStartPending) {
             $('#undo-btn').text('⟲ UNDO (' + grandmasterUndos + ')').fadeIn(200);
@@ -494,14 +612,13 @@
         }
     }
 
-    // --- DASHBOARD UI TOGGLE ---
     $('#toggle-dashboard-btn').on('click', function() { $('#dashboard-panel').fadeToggle(150); });
     $(document).on('click', function(e) {
         var $panel = $('#dashboard-panel'); var $btn = $('#toggle-dashboard-btn');
         if (!$panel.is(e.target) && $panel.has(e.target).length === 0 && !$btn.is(e.target)) { $panel.fadeOut(150); }
     });
 
-    // --- LOCAL ENGINE ---
+    // --- LOCAL ENGINE & ENDLESS THEORY GENERATOR ---
     fetch('https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.js', { cache: 'force-cache' })
         .then(response => response.text())
         .then(code => {
@@ -517,10 +634,8 @@
                     if (!restoreGameState()) {
                         $('#new-btn').click(); 
                     } else {
-                        if (initialStartPending) {
+                        if (!isLearningMode && initialStartPending) {
                             $status.text("Setup complete. Tap your clock to start.").css({"color": "#d4af37", "border-left-color": "#d4af37"});
-                        } else {
-                            $status.text("Save restored. Good luck.").css({"color": "#d4af37", "border-left-color": "#007acc"});
                         }
                     }
                 } 
@@ -529,16 +644,33 @@
                     if (match) {
                         var move = { from: match[1], to: match[2], promotion: match[3] || 'q' };
                         var engineMove = game.move(move);
-                        board.position(game.fen());
-                        playChessSound(engineMove);
                         
-                        applyIncrement(engineMove.color);
-                        
-                        isEngineThinking = false;
-                        disableControls(false);
-                        updateUI();
-                        updateHighlights();
-                        saveGameState();
+                        if (isLearningMode && isGeneratingTheory) {
+                            openingMoves.push(engineMove.san);
+                            openingCurrentIndex++;
+                            board.position(game.fen());
+                            playChessSound(engineMove);
+                            updateHighlights();
+                            
+                            isGeneratingTheory = false;
+                            $('#next-move-btn').text('➡').prop('disabled', false);
+                            $status.text("Engine Theory Extension generated.").css("color", "#d4af37");
+                            
+                            updateLearningUI();
+                            saveGameState();
+                            return;
+                        }
+
+                        if (!isLearningMode) {
+                            board.position(game.fen());
+                            playChessSound(engineMove);
+                            applyIncrement(engineMove.color);
+                            isEngineThinking = false;
+                            disableControls(false);
+                            updateUI();
+                            updateHighlights();
+                            saveGameState();
+                        }
                     }
                 }
             };
@@ -624,7 +756,7 @@
     }
 
     function updateClocks() {
-        if (initialStartPending) return; 
+        if (isLearningMode || initialStartPending) return; 
 
         var topTime = (humanColor === 'w') ? blackTime : whiteTime; 
         var bottomTime = (humanColor === 'w') ? whiteTime : blackTime;
@@ -643,9 +775,11 @@
     }
 
     function startTimer() {
-        clearInterval(timerInterval); updateClocks();
+        clearInterval(timerInterval); 
+        if (isLearningMode) return;
+        updateClocks();
         timerInterval = setInterval(function() {
-            if (game.game_over() || gameEnded || initialStartPending) return;
+            if (game.game_over() || gameEnded || initialStartPending || isLearningMode) return;
             if (game.turn() === 'w') { whiteTime--; if (whiteTime <= 0) handleTimeout('White'); } 
             else { blackTime--; if (blackTime <= 0) handleTimeout('Black'); }
             updateClocks();
@@ -659,6 +793,11 @@
     function seededRandom(seed) { var x = Math.sin(seed) * 10000; return x - Math.floor(x); }
 
     function updateCapturedPieces() {
+        if (isLearningMode) {
+            $('#captured-player, #captured-opponent').empty();
+            return;
+        }
+
         var counts = { w: { p: 8, n: 2, b: 2, r: 2, q: 1 }, b: { p: 8, n: 2, b: 2, r: 2, q: 1 } };
         var boardState = game.board();
         for (var i = 0; i < 8; i++) {
@@ -698,7 +837,7 @@
     function updateHighlights() {
         $('#board .square-55d63').removeClass('selected-square').removeClass('legal-move-hint').removeClass('last-move-square').removeClass('in-check-square');
         
-        if (selectedSquare) {
+        if (selectedSquare && !isLearningMode) {
             $('#board .square-' + selectedSquare).addClass('selected-square');
             var moves = game.moves({ square: selectedSquare, verbose: true });
             for (var i = 0; i < moves.length; i++) { $('#board .square-' + moves[i].to).addClass('legal-move-hint'); }
@@ -726,8 +865,103 @@
         }
     }
 
-    // --- CLICK TO MOVE & START LISTENER ---
+    // --- ENDLESS LEARNING MODE NAVIGATION & SIMULATION ---
+    function nextOpeningMove() {
+        if (!isLearningMode || isGeneratingTheory) return;
+        initAudio();
+
+        if (openingCurrentIndex < openingMoves.length) {
+            var move = game.move(openingMoves[openingCurrentIndex]);
+            if (move) {
+                openingCurrentIndex++;
+                board.position(game.fen());
+                playChessSound(move);
+                updateHighlights();
+                updateLearningUI();
+                saveGameState();
+            }
+        } else {
+            // ENDLESS THEORY GENERATOR: Ask Stockfish for the absolute best move
+            if (game.game_over()) return; 
+            
+            isGeneratingTheory = true;
+            $('#next-move-btn').text('...').prop('disabled', true);
+            $status.text("Engine is generating optimal theory line...").css({"color": "#ffcc00", "border-left-color": "#ffcc00"});
+            
+            var depth = 12; // Fast simulation depth
+            stockfishWorker.postMessage('position fen ' + game.fen());
+            stockfishWorker.postMessage('go depth ' + depth);
+        }
+    }
+
+    function prevOpeningMove() {
+        if (!isLearningMode || openingCurrentIndex <= 0 || isGeneratingTheory) return;
+        initAudio();
+        game.undo();
+        openingCurrentIndex--;
+        board.position(game.fen());
+        playSynthSound('move');
+        updateHighlights();
+        updateLearningUI();
+        saveGameState();
+    }
+
+    function updateLearningUI() {
+        $('#opening-step').text(openingCurrentIndex + " / " + openingMoves.length);
+        
+        var history = game.history(); var historyHTML = "";
+        for (var i = 0; i < history.length; i += 2) {
+            var moveNum = (i / 2) + 1; var blackMove = history[i+1] ? history[i+1] : "";
+            historyHTML += moveNum + ". " + history[i] + " &nbsp;&nbsp;&nbsp;" + blackMove + "<br>";
+        }
+        if (history.length === 0) historyHTML = "<em>Start of opening sequence...</em>";
+        $history.html(historyHTML);
+        var historyDiv = document.getElementById('move-history'); historyDiv.scrollTop = historyDiv.scrollHeight;
+    }
+
+    $('#next-move-btn').on('click', nextOpeningMove);
+    $('#prev-move-btn').on('click', prevOpeningMove);
+
+    $(document).on('keydown', function(e) {
+        if (isLearningMode) {
+            if (e.key === "ArrowRight") nextOpeningMove();
+            if (e.key === "ArrowLeft") prevOpeningMove();
+        }
+    });
+
+    // "Play From Here" Button - Transition from Learning to Live Match
+    $('#play-from-here-btn').on('click', function() {
+        if (!isLearningMode || isGeneratingTheory) return;
+        initAudio();
+        
+        isLearningMode = false;
+        $('body').removeClass('is-learning');
+        
+        humanColor = game.turn(); 
+        board.orientation(humanColor === 'w' ? 'white' : 'black');
+        
+        var clockTime = getStartingSeconds();
+        whiteTime = clockTime; 
+        blackTime = clockTime;
+        grandmasterUndos = 2;
+        initialStartPending = true;
+
+        updateOpponentName();
+        updateCapturedPieces();
+        updateHighlights();
+        
+        $status.text("Setup complete. Tap your clock to start.").css({"color": "#d4af37", "border-left-color": "#d4af37"});
+        $('#time-player').text('START');
+        $('#clock-player').addClass('ready-to-start');
+        $('#time-opponent').text(formatTime(clockTime));
+        $('#clock-player, #clock-opponent').removeClass('clock-active');
+        
+        saveGameState();
+    });
+
+    // --- GAMEPLAY INTERACTION ---
     $('#clock-player').on('click', function() {
+        if (isLearningMode) return;
         if (initialStartPending && isEngineReady) {
             initAudio();
             initialStartPending = false;
@@ -737,7 +971,6 @@
             startTimer();
             updateUI();
             
-            // If human opted to play as black, trigger the engine's first move
             if (game.turn() !== humanColor) {
                 triggerEngineMove();
             }
@@ -747,6 +980,7 @@
 
     $('#board').on('click', '.square-55d63', function() {
         initAudio();
+        if (isLearningMode) return; 
         if (initialStartPending) return; 
         if (game.game_over() || isEngineThinking || whiteTime <= 0 || blackTime <= 0) return;
         if (game.turn() !== humanColor) return;
@@ -784,7 +1018,7 @@
 
     // --- THE GRANDMASTER UNDO ---
     $('#undo-btn').on('click', function() {
-        if (grandmasterUndos > 0 && game.history().length >= 2 && !isEngineThinking && !initialStartPending) {
+        if (grandmasterUndos > 0 && game.history().length >= 2 && !isEngineThinking && !initialStartPending && !isLearningMode) {
             initAudio(); grandmasterUndos--;
             game.undo(); game.undo(); 
             board.position(game.fen());
@@ -795,7 +1029,7 @@
 
     // --- WORKER HANDLERS & MATCH LOGIC ---
     function triggerEngineMove() {
-        if (game.game_over() || whiteTime <= 0 || blackTime <= 0) return;
+        if (game.game_over() || whiteTime <= 0 || blackTime <= 0 || isLearningMode) return;
         isEngineThinking = true;
         disableControls(true);
         updateUndoButton(); 
@@ -807,11 +1041,12 @@
     }
 
     function updateUI () {
-        if (initialStartPending) return; 
+        if (initialStartPending || isLearningMode) return; 
         
         updateCapturedPieces();
         updateClocks();
         updateUndoButton(); 
+        updateHighlights();
         
         if (game.game_over() || whiteTime <= 0 || blackTime <= 0) {
             clearInterval(timerInterval);
@@ -862,47 +1097,129 @@
         $('#new-btn, #load-btn, #random-btn, #switch-btn, #scenario-select, #depth-select, #time-select, #increment-toggle').prop('disabled', disabled);
     }
 
-    function loadPosition(fen, matchTitle) {
+    function loadPosition(fenOrOpening, matchTitle) {
         if (isEngineThinking) return;
         selectedSquare = null;
         gameEnded = false; 
-        initialStartPending = true; 
         clearInterval(timerInterval);
         
-        game.load(fen);
-        
-        humanColor = game.turn(); 
-        board.orientation(humanColor === 'w' ? 'white' : 'black');
-        board.position(fen);
-        
-        var clockTime = getStartingSeconds();
-        whiteTime = clockTime; 
-        blackTime = clockTime;
-        grandmasterUndos = 2; 
-        
-        $('#fen-display').text(matchTitle || "SCENARIO: STANDARD MATCH");
-        
-        updateOpponentName();
-        updateHighlights();
-        updateCapturedPieces();
-        
-        // Push board to the "Wait to start" phase
-        $status.text("Setup complete. Tap your clock to start.").css({"color": "#d4af37", "border-left-color": "#d4af37"});
-        $('#time-player').text('START');
-        $('#clock-player').addClass('ready-to-start');
-        $('#time-opponent').text(formatTime(clockTime));
-        $('#clock-player, #clock-opponent').removeClass('clock-active');
-        
-        saveGameState();
+        if (fenOrOpening.startsWith("OPENING:")) {
+            // LEARNING MODE BOOT
+            isLearningMode = true;
+            initialStartPending = false;
+            currentOpeningKey = fenOrOpening.split(":")[1];
+            openingMoves = OPENINGS_DB[currentOpeningKey] || [];
+            openingCurrentIndex = 0;
+            
+            game.reset(); 
+            humanColor = 'w'; 
+            board.orientation('white');
+            board.position(game.fen());
+            
+            $('#fen-display').text("LEARNING: " + matchTitle);
+            $status.text("Endless Explorer. Step or let Engine play.").css({"color": "#d4af37", "border-left-color": "#d4af37"});
+            
+            $('body').addClass('is-learning');
+            updateLearningUI();
+            updateHighlights();
+            updateCapturedPieces(); 
+            saveGameState();
+            
+        } else {
+            // MATCH MODE BOOT
+            isLearningMode = false;
+            currentOpeningKey = null;
+            $('body').removeClass('is-learning');
+            
+            initialStartPending = true; 
+            $('#clock-player').removeClass('ready-to-start');
+            
+            game.load(fenOrOpening);
+            
+            humanColor = game.turn(); 
+            board.orientation(humanColor === 'w' ? 'white' : 'black');
+            board.position(game.fen());
+            
+            var clockTime = getStartingSeconds();
+            whiteTime = clockTime; 
+            blackTime = clockTime;
+            grandmasterUndos = 2; 
+            
+            $('#fen-display').text(matchTitle || "SCENARIO: STANDARD MATCH");
+            
+            updateOpponentName();
+            updateHighlights();
+            updateCapturedPieces();
+            
+            $status.text("Setup complete. Tap your clock to start.").css({"color": "#d4af37", "border-left-color": "#d4af37"});
+            $('#time-player').text('START');
+            $('#clock-player').addClass('ready-to-start');
+            $('#time-opponent').text(formatTime(clockTime));
+            $('#clock-player, #clock-opponent').removeClass('clock-active');
+            
+            saveGameState();
+        }
+    }
+// --- 🌐 DYNAMIC ONLINE LIBRARY LOGIC ---
+    async function fetchOnlineLibrary() {
+        try {
+            /* HOW THIS WORKS:
+               You can host a simple JSON file anywhere (like a free GitHub Gist) formatted like this:
+               [ 
+                 { "title": "Today's Puzzle", "fen": "r1b2rk1/1pq2ppp/p1n1p3..." },
+                 { "title": "Kasparov vs Deep Blue", "fen": "..." } 
+               ]
+               Just replace the URL below with your raw JSON link.
+            */
+            
+            // Example: const response = await fetch('https://your-server.com/chess-library.json');
+            // const externalData = await response.json();
+
+            // For now, we will simulate the data arriving from a server:
+            const externalData = [
+                { title: "Daily Live Puzzle", fen: "r1b2rk1/1pq2ppp/p1n1p3/3pP3/1b1P4/1PNBPN2/P5PP/R2Q1RK1 w - - 1 14" },
+                { title: "Hikaru's Trap", fen: "r1bqk2r/pp2bppp/2np1n2/4p1N1/2B1P3/2N5/PP3PPP/R1BQK2R b KQkq - 3 8" },
+                { title: "Carlsen Endgame", fen: "8/8/8/4k3/8/4K3/4P3/8 w - - 0 1" }
+            ];
+
+            const $onlineGroup = $('#online-library');
+            $onlineGroup.empty(); // Remove the "Loading from internet..." text
+
+            // Inject the fetched FENs into the dropdown dynamically
+            externalData.forEach(item => {
+                $onlineGroup.append(`<option value="${item.fen}">${item.title}</option>`);
+            });
+
+        } catch (error) {
+            $('#online-library').html('<option value="error" disabled>Network Error: Could not load live library</option>');
+        }
     }
 
+    // Trigger the internet fetch as soon as the page loads
+    fetchOnlineLibrary();
+
+
+    // --- 🌐 CUSTOM FEN PASTE HANDLER ---
+    $('#load-custom-fen-btn').on('click', function() {
+        var customFen = $('#custom-fen-input').val().trim();
+        
+        // Basic check to make sure it looks somewhat like a FEN string before loading
+        if (customFen.length > 15 && customFen.includes('/')) { 
+            initAudio();
+            loadPosition(customFen, "IMPORTED FEN MATCH");
+            $('#custom-fen-input').val(''); // Clear the input box cleanly
+            $('#dashboard-panel').fadeOut(150); // Close the dashboard
+        } else {
+            alert("Invalid FEN. Please paste a valid chess FEN string.");
+        }
+    });
     // EVENT HANDLERS
     $('#new-btn').on('click', function() { initAudio(); loadPosition('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', "SCENARIO: STANDARD MATCH"); });
     
     $('#load-btn').on('click', function() { 
         initAudio(); 
         var title = $('#scenario-select option:selected').text();
-        loadPosition($('#scenario-select').val(), "SCENARIO: " + title); 
+        loadPosition($('#scenario-select').val(), title); 
         $('#dashboard-panel').fadeOut(150);
     });
     
@@ -911,11 +1228,11 @@
         var options = $('#scenario-select option'); var randomIdx = Math.floor(Math.random() * options.length);
         $('#scenario-select').prop('selectedIndex', randomIdx); 
         var title = options.eq(randomIdx).text();
-        loadPosition(options.eq(randomIdx).val(), "SCENARIO: " + title);
+        loadPosition(options.eq(randomIdx).val(), title);
     });
 
     $('#switch-btn').on('click', function() {
-        initAudio(); if (isEngineThinking || game.game_over()) return;
+        initAudio(); if (isEngineThinking || game.game_over() || isLearningMode) return;
         selectedSquare = null;
         humanColor = (humanColor === 'w') ? 'b' : 'w'; 
         board.orientation(humanColor === 'w' ? 'white' : 'black'); 
