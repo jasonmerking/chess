@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Grandmaster Dashboard - Endless Theory</title>
+    <title>Grandmaster Dashboard - Ultimate Learning Engine</title>
     
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -80,10 +80,7 @@
         
         .control-group { margin-bottom: 15px; display: flex; flex-direction: column; }
         label { font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #e6cdac; margin-bottom: 5px; text-shadow: 1px 1px 2px #000;}
-        select { 
-            background-color: rgba(0,0,0,0.5); color: #e6cdac; border: 1px solid #5c3a21; 
-            padding: 10px; border-radius: 4px; font-size: 13px; outline: none; cursor: pointer; margin-bottom: 8px;
-        }
+        select { background-color: rgba(0,0,0,0.5); color: #e6cdac; border: 1px solid #5c3a21; padding: 10px; border-radius: 4px; font-size: 13px; outline: none; cursor: pointer; margin-bottom: 8px;}
         select:focus { border-color: #d4af37; box-shadow: 0 0 5px rgba(212,175,55,0.4); }
         
         .checkbox-wrapper { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; cursor: pointer; }
@@ -110,11 +107,15 @@
             margin-bottom: 15px; text-align: center; color: #e6cdac;
         }
         #history-container { flex: 1; display: flex; flex-direction: column; min-height: 100px; overflow: hidden;}
+        
+        /* Upgraded Notation Box for Multi-Line Instructions */
         #move-history { 
             flex: 1; background-color: rgba(0,0,0,0.6); border: 1px solid #5c3a21; 
             border-radius: 4px; padding: 10px; overflow-y: auto; 
-            font-family: 'Courier New', Courier, monospace; font-size: 12px; line-height: 1.6; color: #bbb; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 13px; line-height: 1.4; color: #ddd; 
         }
+        .history-turn { margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 8px; }
+        .reasoning-text { color: #888; font-size: 11px; display: block; margin-top: 2px; font-style: italic; }
 
         /* --- MAIN STAGE --- */
         #arena {
@@ -122,7 +123,6 @@
             height: 100dvh; width: 100vw; gap: 30px; padding: 15px; box-sizing: border-box;
         }
 
-        /* CLOCKS & CAPTURED PIECES */
         .side-panel { display: flex; flex-direction: column; align-items: center; width: 180px; transition: opacity 0.3s;}
         .opponent-panel { justify-content: flex-start; padding-top: max(15px, env(safe-area-inset-top)); }
         .player-panel { justify-content: flex-end; padding-bottom: max(15px, env(safe-area-inset-bottom)); }
@@ -142,41 +142,28 @@
             box-shadow: inset 0 0 10px rgba(0,0,0,0.9), 0 6px 12px rgba(0,0,0,0.7);
             transition: transform 0.1s; position: relative; z-index: 5;
         }
-        .clock .time {
-            font-family: 'Georgia', 'Times New Roman', serif; font-size: 34px; font-weight: bold;
-            color: #b89947; text-shadow: 1px 2px 2px #000; letter-spacing: 1px;
-        }
-        .clock-active {
-            border-color: #d4af37; 
-            background: linear-gradient(145deg, #4a2a14, #241407);
-            box-shadow: inset 0 0 8px rgba(0,0,0,0.8), 0 0 15px rgba(212, 175, 55, 0.3);
-            transform: scale(1.02);
-        }
+        .clock .time { font-family: 'Georgia', 'Times New Roman', serif; font-size: 34px; font-weight: bold; color: #b89947; text-shadow: 1px 2px 2px #000; letter-spacing: 1px; }
+        .clock-active { border-color: #d4af37; background: linear-gradient(145deg, #4a2a14, #241407); box-shadow: inset 0 0 8px rgba(0,0,0,0.8), 0 0 15px rgba(212, 175, 55, 0.3); transform: scale(1.02); }
         .clock-active .time { color: #ffe599; text-shadow: 1px 2px 4px #000, 0 0 8px rgba(212, 175, 55, 0.4); }
 
         .ready-to-start { cursor: pointer; animation: pulse-gold 2s infinite; }
-        @keyframes pulse-gold {
-            0% { box-shadow: inset 0 0 8px rgba(0,0,0,0.8), 0 0 15px rgba(212, 175, 55, 0.1); border-color: #5c3a21;}
-            50% { box-shadow: inset 0 0 8px rgba(0,0,0,0.8), 0 0 25px rgba(212, 175, 55, 0.6); border-color: #d4af37;}
-            100% { box-shadow: inset 0 0 8px rgba(0,0,0,0.8), 0 0 15px rgba(212, 175, 55, 0.1); border-color: #5c3a21;}
-        }
+        @keyframes pulse-gold { 0% { box-shadow: inset 0 0 8px rgba(0,0,0,0.8), 0 0 15px rgba(212, 175, 55, 0.1); border-color: #5c3a21;} 50% { box-shadow: inset 0 0 8px rgba(0,0,0,0.8), 0 0 25px rgba(212, 175, 55, 0.6); border-color: #d4af37;} 100% { box-shadow: inset 0 0 8px rgba(0,0,0,0.8), 0 0 15px rgba(212, 175, 55, 0.1); border-color: #5c3a21;} }
         .ready-to-start .time { font-size: 26px; color: #ffe599; }
 
-        .captured-area {
-            display: flex; flex-wrap: wrap; align-content: flex-start; justify-content: center;
-            width: 100%; min-height: 80px; margin: 15px 0;
-        }
+        .captured-area { display: flex; flex-wrap: wrap; align-content: flex-start; justify-content: center; width: 100%; min-height: 80px; margin: 15px 0; }
         .captured-piece { width: 42px; height: 42px; margin: -8px; transition: transform 0.2s; }
         .captured-piece.white-piece { filter: brightness(0.75) drop-shadow(3px 4px 4px rgba(0,0,0,0.8)); }
         .captured-piece.black-piece { filter: brightness(1.1) drop-shadow(3px 4px 4px rgba(0,0,0,0.9)); }
 
-        /* --- THE CHESSBOARD --- */
+        /* --- THE CHESSBOARD & CENTER STAGE --- */
+        #center-stage { display:flex; flex-direction: column; align-items: center; justify-content: center; position: relative; width: auto; max-width: 100%; }
+
         #board-wrapper {
             height: calc(100dvh - 16px); width: auto; aspect-ratio: 1 / 1; 
             max-width: calc(100vw - 420px); border: 10px solid #29160a; border-radius: 2px;
             box-shadow: 0 15px 40px rgba(0,0,0,0.9), inset 0 0 10px rgba(0,0,0,0.7);
             background-color: transparent; box-sizing: border-box; 
-            flex-shrink: 0; align-self: center;
+            flex-shrink: 0; align-self: center; position: relative; z-index: 10;
         }
         #board { width: 100%; height: 100%; }
 
@@ -185,18 +172,30 @@
         .square-55d63 { cursor: pointer; } 
         
         .selected-square { background-color: rgba(212, 175, 55, 0.6) !important; }
-        .last-move-square { 
-            background-color: rgba(255, 60, 60, 0.15) !important; 
-            box-shadow: inset 0 -6px 0 rgba(220, 30, 30, 0.85) !important; 
+        .last-move-square { background-color: rgba(255, 60, 60, 0.15) !important; box-shadow: inset 0 -6px 0 rgba(220, 30, 30, 0.85) !important; }
+        .in-check-square { background: radial-gradient(circle at center, #ff3333 0%, #990000 100%) !important; box-shadow: inset 0 0 15px rgba(0,0,0,0.6); }
+        .legal-move-hint::after { content: ''; position: absolute; top: 50%; left: 50%; width: 28%; height: 28%; background-color: rgba(0, 0, 0, 0.4); border-radius: 50%; transform: translate(-50%, -50%); pointer-events: none; z-index: 10; }
+
+        /* --- THE HEURISTIC TRANSLATOR BOX --- */
+        #ai-reasoning-box {
+            background: linear-gradient(145deg, #1f1105, #120a05);
+            border: 2px solid #5c3a21; border-radius: 6px;
+            padding: 12px; color: #e6cdac; font-size: 13px; line-height: 1.4;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.8); z-index: 5;
+            transition: all 0.3s ease; display: none; box-sizing: border-box;
         }
-        .in-check-square { 
-            background: radial-gradient(circle at center, #ff3333 0%, #990000 100%) !important; 
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.6);
-        }
-        .legal-move-hint::after {
-            content: ''; position: absolute; top: 50%; left: 50%; width: 28%; height: 28%;
-            background-color: rgba(0, 0, 0, 0.4); border-radius: 50%;
-            transform: translate(-50%, -50%); pointer-events: none; z-index: 10;
+        #ai-reasoning-box h3 { margin: 0 0 6px 0; color: #d4af37; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+
+        body.hide-reasoning #ai-reasoning-box { display: none !important; }
+
+        /* Desktop AI Box Routing (Absolute to left/right of center stage) */
+        @media (min-width: 901px) {
+            body.ai-black #ai-reasoning-box {
+                display: block; position: fixed; left: 25px; top: 50%; transform: translateY(-50%); width: 240px;
+            }
+            body.ai-white #ai-reasoning-box {
+                display: block; position: fixed; right: 25px; top: 50%; transform: translateY(-50%); width: 240px;
+            }
         }
 
         /* --- THEORY EXPLORER NAVIGATION --- */
@@ -212,12 +211,11 @@
         .nav-btn-row { display: flex; width: 100%; gap: 10px; justify-content: center; }
         .nav-btn { flex: 1; padding: 12px; font-size: 14px !important;}
         
-        /* Learning Mode specific element visibility */
         body.is-learning .player-info, body.is-learning .captured-area { display: none !important; }
         body.is-learning .player-panel #opening-nav { display: flex; }
 
         /* =========================================================
-           MOBILE RESPONSIVENESS LOGIC
+           MOBILE RESPONSIVENESS LOGIC (Flexbox Magic)
            ========================================================= */
         @media (max-width: 900px), (max-aspect-ratio: 1.1/1) {
             #arena {
@@ -228,21 +226,31 @@
             .side-panel { width: 100%; flex-direction: row; padding: 0; align-items: center; justify-content: space-between;}
             .player-info { width: auto; align-items: flex-start; margin-bottom: 0;}
             .player-panel .player-info { align-items: flex-end; }
-
-            /* In mobile learning mode, don't allocate height to hidden clocks */
             body.is-learning .side-panel { display: none; }
 
+            /* Center Stage Flexbox Reordering on Mobile */
+            #center-stage { width: 100%; gap: 8px; }
+            
             #board-wrapper {
                 width: 100%; max-width: min(100vw - 20px, 100dvh - 220px); 
                 height: auto; aspect-ratio: 1 / 1; border-width: 6px; margin: 0 auto; 
             }
             body.is-learning #board-wrapper { max-width: min(100vw - 20px, 100dvh - 150px); }
 
+            /* If AI is Black (Top), reasoning is ABOVE board. If White, reasoning is BELOW board */
+            body.ai-black #ai-reasoning-box { display: block; order: 1; width: 100%; max-width: min(100vw - 20px, 100dvh - 220px); padding: 8px; font-size: 11px;}
+            body.ai-black #board-wrapper { order: 2; }
+            body.ai-black #mobile-opening-wrapper { order: 3; width: 100%;}
+
+            body.ai-white #board-wrapper { order: 1; }
+            body.ai-white #ai-reasoning-box { display: block; order: 2; width: 100%; max-width: min(100vw - 20px, 100dvh - 220px); padding: 8px; font-size: 11px;}
+            body.ai-white #mobile-opening-wrapper { order: 3; width: 100%;}
+
+            /* Clocks and UI Resizing */
             .clock { width: 120px; height: 50px; border-width: 3px; }
             .clock .time { font-size: 26px; }
             .ready-to-start .time { font-size: 22px; }
             .player-label { font-size: 11px; padding: 3px 10px; margin-bottom: 4px; }
-
             .captured-area { flex: 1; min-height: auto; margin: 0; align-content: center;}
             .opponent-panel .captured-area { justify-content: flex-start; padding-left: 10px;}
             .player-panel .captured-area { justify-content: flex-end; padding-right: 10px;}
@@ -251,14 +259,10 @@
             #fen-display { top: max(18px, env(safe-area-inset-top)); left: 15px; bottom: auto; font-size: 10px; max-width: calc(100vw - 150px);}
             #top-nav { top: max(12px, env(safe-area-inset-top)); right: 10px; gap: 4px; }
             .glass-btn { padding: 6px 10px; font-size: 10px; }
-
             #undo-btn { left: 50%; top: -35px; transform: translateX(-50%); padding: 6px 10px; font-size: 10px; }
 
-            /* Mobile-specific adjustments for the Theory Explorer */
-            #opening-nav {
-                position: static; background: transparent; border: none; box-shadow: none; 
-                padding: 10px 0 0 0; margin-top: 0; display: none; /* overrides right panel injection */
-            }
+            /* Mobile Opening Nav routing */
+            #opening-nav { position: static; background: transparent; border: none; box-shadow: none; padding: 10px 0 0 0; margin-top: 0; display: none; }
             body.is-learning #mobile-opening-wrapper #opening-nav { display: flex; flex-direction: row; gap: 10px;}
             #opening-nav h3, #opening-nav hr { display: none; }
             .nav-btn-row { width: auto; gap: 5px; }
@@ -267,7 +271,7 @@
         }
     </style>
 </head>
-<body>
+<body class="hide-reasoning ai-black">
 
 <!-- DYNAMIC SCENARIO TITLE -->
 <div id="fen-display">SCENARIO: STANDARD MATCH</div>
@@ -307,15 +311,6 @@
         <label for="increment-toggle">Enable Move Time Increment</label>
     </div>
 
-    <div class="control-group">
-        <label>Acoustic Sound Profile</label>
-        <select id="sound-theme-select">
-            <option value="wood" selected>Classic Wood OTB</option>
-            <option value="arcade">Retro Arcade Synth</option>
-            <option value="digital">Modern Digital Chime</option>
-        </select>
-    </div>
-
     <div class="control-group" style="margin-top: 10px; border-top: 1px solid #5c3a21; padding-top: 15px;">
         <label>Scenarios & Live Library</label>
         <select id="scenario-select">
@@ -325,9 +320,9 @@
             </optgroup>
             
             <optgroup label="Learn Famous Openings">
-                <option value="OPENING:ruy_lopez">Ruy Lopez</option>
-                <option value="OPENING:italian">Italian Game</option>
-                <option value="OPENING:sicilian">Sicilian Defense</option>
+                <option value="OPENING:ruy_lopez">Ruy Lopez (Standard)</option>
+                <option value="OPENING:italian">Italian Game (Standard)</option>
+                <option value="OPENING:sicilian">Sicilian Defense (Standard)</option>
                 <option value="OPENING:karpov_caro_kann">Anatoly Karpov's Caro-Kann</option>
                 <option value="OPENING:tal_modern_benoni">Mikhail Tal's Modern Benoni</option>
                 <option value="OPENING:fischer_sozin">Bobby Fischer's Sozin Attack</option>
@@ -335,7 +330,6 @@
                 <option value="OPENING:carlsen_catalan">Magnus Carlsen's Catalan</option>
             </optgroup>
 
-            <!-- 🔙 RESTORED EXACTLY AS THEY WERE -->
             <optgroup label="Legendary Attacking Games">
                 <option value="1n2kb1r/p4ppp/4q3/4p1B1/4P3/1Q6/PPP2PPP/2KR4 w k - 0 16">Morphy's Opera Game (White)</option>
                 <option value="r4rk1/pp3pbp/1qp3p1/2B5/2NP4/1P3Q2/P4PPP/R3R1K1 b - - 0 17">Fischer's Game of the Century (Black)</option>
@@ -371,7 +365,7 @@
     <div id="status-box">Booting Local Engine...</div>
 
     <div id="history-container">
-        <label>Match Notation</label>
+        <label>Match Notation & Analysis</label>
         <div id="move-history"></div>
     </div>
 </div>
@@ -387,12 +381,21 @@
         <div id="captured-opponent" class="captured-area"></div>
     </div>
 
-    <!-- Center Stage -->
-    <div style="display:flex; flex-direction: column; align-items: center; justify-content: center; position: relative;">
+    <!-- Center Stage (Flex Reordering Zone) -->
+    <div id="center-stage">
+        
+        <!-- THE HEURISTIC TRANSLATOR BOX -->
+        <div id="ai-reasoning-box">
+            <h3>💡 Logic & Reasoning</h3>
+            <span id="reasoning-text">Waiting for move...</span>
+        </div>
+
+        <!-- Chessboard -->
         <div id="board-wrapper"><div id="board"></div></div>
         
         <!-- Mobile Injection Wrapper for Theory Explorer -->
-        <div id="mobile-opening-wrapper" style="width: 100%;"></div>
+        <div id="mobile-opening-wrapper"></div>
+
     </div>
 
     <!-- Player Panel -->
@@ -407,7 +410,6 @@
         </div>
         
         <!-- Desktop Injection Wrapper for Theory Explorer -->
-        <!-- Placed here so it assumes the space of the hidden clocks elegantly -->
         <div id="opening-nav">
             <h3>Theory Explorer</h3>
             <div class="nav-btn-row">
@@ -447,7 +449,6 @@
     var openingMoves = [];
     var openingCurrentIndex = 0;
 
-    // Grandmaster Innovations Library
     const OPENINGS_DB = {
         "ruy_lopez": ["e4", "e5", "Nf3", "Nc6", "Bb5"],
         "italian": ["e4", "e5", "Nf3", "Nc6", "Bc4"],
@@ -459,7 +460,6 @@
         "carlsen_catalan": ["d4", "Nf6", "c4", "e6", "g3", "d5", "Bg2", "Be7", "Nf3", "O-O", "O-O", "dxc4", "Qc2", "a6", "Qxc4", "b5", "Qc2", "Bb7", "Bd2", "Nc6"]
     };
 
-    // Responsive DOM routing for the Nav Controls
     function routeOpeningNav() {
         if ($(window).width() <= 900 || ($(window).width() / $(window).height()) <= 1.1) {
             $('#opening-nav').appendTo('#mobile-opening-wrapper');
@@ -470,27 +470,91 @@
     $(window).on('resize orientationchange', routeOpeningNav);
     routeOpeningNav();
 
+    // --- 💡 THE HEURISTIC TRANSLATION ENGINE ---
+    function getMoveReasoning(moveObj) {
+        if (!moveObj) return "";
+        let reason = [];
+        let pName = {'p':'Pawn', 'n':'Knight', 'b':'Bishop', 'r':'Rook', 'q':'Queen', 'k':'King'}[moveObj.piece];
+
+        if (moveObj.san === 'O-O') return "Castles kingside to protect the King and connect Rooks.";
+        if (moveObj.san === 'O-O-O') return "Castles queenside to protect the King and centralize the Rook.";
+
+        if (moveObj.captured) {
+            reason.push(`Captures the piece on ${moveObj.to} to force a structural or material advantage`);
+        } else {
+            if (moveObj.piece === 'p') {
+                if (Math.abs(moveObj.from.charCodeAt(1) - moveObj.to.charCodeAt(1)) === 2) {
+                    reason.push("Advances two squares to aggressively claim central territory");
+                } else {
+                    reason.push(`Pushes the pawn to ${moveObj.to} to control key forward squares`);
+                }
+            } else if (moveObj.piece === 'n' || moveObj.piece === 'b') {
+                reason.push(`Develops the ${pName} to prepare for an attack`);
+            } else if (moveObj.piece === 'r' || moveObj.piece === 'q') {
+                reason.push(`Activates the major ${pName} to dominate a powerful line`);
+            } else {
+                reason.push(`Repositions the ${pName} to ${moveObj.to} for better structure`);
+            }
+        }
+
+        if (moveObj.san.includes('#')) reason.push("delivering a crushing Checkmate!");
+        else if (moveObj.san.includes('+')) reason.push("forcing the opponent into Check!");
+
+        if (moveObj.promotion) reason.push(`Promotes the pawn to a Queen for massive power!`);
+
+        return reason.join(" and ") + ".";
+    }
+
+    function showReasoning(text) {
+        $('#reasoning-text').text(text);
+        $('body').removeClass('hide-reasoning');
+    }
+    function hideReasoning() { $('body').addClass('hide-reasoning'); }
+
+
+    // --- 🌐 DYNAMIC ONLINE LIBRARY LOGIC ---
+    async function fetchOnlineLibrary() {
+        try {
+            // Fetch live data from your GitHub Gist
+            const response = await fetch('https://gist.githubusercontent.com/jasonmerking/0067d706ee2f4459b88a1f4eced99658/raw/chess-library.json');
+            const externalData = await response.json();
+
+            const $onlineGroup = $('#online-library');
+            $onlineGroup.empty(); 
+
+            externalData.forEach(item => {
+                $onlineGroup.append(`<option value="${item.fen}" data-instruction="${item.instruction}">${item.title}</option>`);
+            });
+
+        } catch (error) {
+            $('#online-library').html('<option value="error" disabled>Network Error</option>');
+        }
+    }
+    fetchOnlineLibrary(); // Execute instantly on boot
+
+    $('#load-custom-fen-btn').on('click', function() {
+        var customFen = $('#custom-fen-input').val().trim();
+        if (customFen.length > 15 && customFen.includes('/')) { 
+            initAudio();
+            loadPosition(customFen, "IMPORTED FEN MATCH");
+            $('#custom-fen-input').val(''); 
+            $('#dashboard-panel').fadeOut(150); 
+        } else {
+            alert("Invalid FEN. Please paste a valid chess FEN string.");
+        }
+    });
+
     // --- AUTOSAVE & RESTORE LOGIC ---
     function saveGameState() {
         if (!isEngineReady) return;
         var state = {
-            pgn: game.pgn(),
-            fen: game.fen(),
-            humanColor: humanColor,
-            whiteTime: whiteTime,
-            blackTime: blackTime,
-            depth: $('#depth-select').val(),
-            timeControl: $('#time-select').val(),
-            useIncrement: $('#increment-toggle').is(':checked'),
-            theme: $('#sound-theme-select').val(),
-            undos: grandmasterUndos,
-            title: $('#fen-display').text(),
-            gameEnded: gameEnded,
-            initialStartPending: initialStartPending,
-            isLearningMode: isLearningMode,
-            openingKey: currentOpeningKey,
-            openingMoves: openingMoves,
-            openingCurrentIndex: openingCurrentIndex
+            pgn: game.pgn(), fen: game.fen(), humanColor: humanColor,
+            whiteTime: whiteTime, blackTime: blackTime, depth: $('#depth-select').val(),
+            timeControl: $('#time-select').val(), useIncrement: $('#increment-toggle').is(':checked'),
+            theme: $('#sound-theme-select').val(), undos: grandmasterUndos, title: $('#fen-display').text(),
+            gameEnded: gameEnded, initialStartPending: initialStartPending, isLearningMode: isLearningMode,
+            openingKey: currentOpeningKey, openingMoves: openingMoves, openingCurrentIndex: openingCurrentIndex,
+            reasoningText: $('#reasoning-text').text()
         };
         localStorage.setItem('grandmasterChessSave', JSON.stringify(state));
     }
@@ -505,6 +569,7 @@
                 $('#increment-toggle').prop('checked', state.useIncrement !== false);
                 $('#sound-theme-select').val(state.theme);
                 $('#fen-display').text(state.title);
+                if (state.reasoningText && state.reasoningText !== "Waiting for move...") showReasoning(state.reasoningText);
                 
                 isLearningMode = state.isLearningMode || false;
 
@@ -512,46 +577,35 @@
                     currentOpeningKey = state.openingKey;
                     openingMoves = state.openingMoves || OPENINGS_DB[currentOpeningKey] || [];
                     openingCurrentIndex = state.openingCurrentIndex || 0;
-                    
                     if (!game.load_pgn(state.pgn)) game.load(state.fen);
                     
                     humanColor = 'w';
-                    board.orientation('white');
-                    board.position(game.fen());
+                    board.orientation('white'); board.position(game.fen());
                     
-                    $('body').addClass('is-learning');
+                    $('body').addClass('is-learning').removeClass('ai-white').addClass('ai-black');
                     
                     $status.text("Endless Explorer. Step or let Engine play.").css({"color": "#d4af37", "border-left-color": "#d4af37"});
-                    updateLearningUI();
-                    updateHighlights();
+                    updateLearningUI(); updateHighlights();
                 } else {
                     $('body').removeClass('is-learning');
-
                     if (!game.load_pgn(state.pgn)) game.load(state.fen);
                     
-                    humanColor = state.humanColor;
-                    whiteTime = state.whiteTime;
-                    blackTime = state.blackTime;
-                    grandmasterUndos = state.undos;
-                    gameEnded = state.gameEnded || false;
+                    humanColor = state.humanColor; whiteTime = state.whiteTime; blackTime = state.blackTime;
+                    grandmasterUndos = state.undos; gameEnded = state.gameEnded || false;
                     initialStartPending = state.initialStartPending !== undefined ? state.initialStartPending : false;
                     
                     board.orientation(humanColor === 'w' ? 'white' : 'black');
+                    $('body').removeClass('ai-black ai-white').addClass(humanColor === 'w' ? 'ai-black' : 'ai-white');
                     board.position(game.fen());
                     
-                    updateOpponentName();
-                    updateUI();
-                    updateHighlights();
+                    updateOpponentName(); updateUI(); updateHighlights();
                     
                     if (initialStartPending) {
-                        $('#time-player').text('START');
-                        $('#clock-player').addClass('ready-to-start');
+                        $('#time-player').text('START'); $('#clock-player').addClass('ready-to-start');
                         $('#time-opponent').text(formatTime(getStartingSeconds()));
                     } else if (!game.game_over() && !gameEnded) {
                         startTimer();
-                        if (game.turn() !== humanColor && !isEngineThinking) {
-                            triggerEngineMove();
-                        }
+                        if (game.turn() !== humanColor && !isEngineThinking) triggerEngineMove();
                     }
                 }
                 return true;
@@ -569,7 +623,6 @@
         if (control === 20) return 1200; 
         return 600; 
     }
-
     function getIncrementSeconds() {
         if (!$('#increment-toggle').is(':checked')) return 0;
         var control = parseInt($('#time-select').val());
@@ -579,13 +632,11 @@
         if (control === 20) return 10;
         return 0;
     }
-
     function applyIncrement(color) {
         if (isLearningMode) return;
         var inc = getIncrementSeconds();
         if (inc > 0) {
-            if (color === 'w') whiteTime += inc;
-            else blackTime += inc;
+            if (color === 'w') whiteTime += inc; else blackTime += inc;
             updateClocks();
         }
     }
@@ -598,8 +649,7 @@
         updateUndoButton();
     }
     $('#depth-select, #time-select, #increment-toggle, #sound-theme-select').on('change', function() {
-        updateOpponentName();
-        saveGameState();
+        updateOpponentName(); saveGameState();
     });
 
     function updateUndoButton() {
@@ -628,9 +678,7 @@
                 var line = event.data;
                 if (line === 'uciok') { stockfishWorker.postMessage('isready'); } 
                 else if (line === 'readyok') {
-                    isEngineReady = true;
-                    disableControls(false);
-                    
+                    isEngineReady = true; disableControls(false);
                     if (!restoreGameState()) {
                         $('#new-btn').click(); 
                     } else {
@@ -647,29 +695,26 @@
                         
                         if (isLearningMode && isGeneratingTheory) {
                             openingMoves.push(engineMove.san);
-                            openingCurrentIndex++;
-                            board.position(game.fen());
-                            playChessSound(engineMove);
-                            updateHighlights();
+                            openingCurrentIndex++; board.position(game.fen());
+                            playChessSound(engineMove); updateHighlights();
+                            
+                            showReasoning(getMoveReasoning(engineMove)); // Show theory logic
                             
                             isGeneratingTheory = false;
                             $('#next-move-btn').text('➡').prop('disabled', false);
                             $status.text("Engine Theory Extension generated.").css("color", "#d4af37");
                             
-                            updateLearningUI();
-                            saveGameState();
-                            return;
+                            updateLearningUI(); saveGameState(); return;
                         }
 
                         if (!isLearningMode) {
                             board.position(game.fen());
                             playChessSound(engineMove);
                             applyIncrement(engineMove.color);
-                            isEngineThinking = false;
-                            disableControls(false);
-                            updateUI();
-                            updateHighlights();
-                            saveGameState();
+                            showReasoning(getMoveReasoning(engineMove)); // Show opponent logic
+                            
+                            isEngineThinking = false; disableControls(false);
+                            updateUI(); updateHighlights(); saveGameState();
                         }
                     }
                 }
@@ -678,70 +723,22 @@
         })
         .catch(err => { $status.html("<span style='color:#ff5252'>Engine offline link anomaly.</span>"); });
 
-    // --- AUDIO STUDIO ---
     window.audioCtx = null;
     function initAudio() {
         if (!window.audioCtx) window.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (window.audioCtx.state === 'suspended') window.audioCtx.resume();
     }
-
     function playSynthSound(type) {
         try {
-            initAudio();
-            const now = window.audioCtx.currentTime;
-            const profile = $('#sound-theme-select').val();
-            const osc = window.audioCtx.createOscillator();
-            const gain = window.audioCtx.createGain();
+            initAudio(); const now = window.audioCtx.currentTime; const profile = $('#sound-theme-select').val();
+            const osc = window.audioCtx.createOscillator(); const gain = window.audioCtx.createGain();
             osc.connect(gain); gain.connect(window.audioCtx.destination);
             
-            if (type === 'win') {
-                osc.type = 'sine'; osc.frequency.setValueAtTime(440, now); osc.frequency.setValueAtTime(554.37, now + 0.1); 
-                osc.frequency.setValueAtTime(659.25, now + 0.2); osc.frequency.setValueAtTime(880, now + 0.3);
-                gain.gain.setValueAtTime(0.5, now); gain.gain.linearRampToValueAtTime(0.01, now + 1.2);
-                osc.start(now); osc.stop(now + 1.2); return;
-            } else if (type === 'lose') {
-                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(300, now); osc.frequency.linearRampToValueAtTime(150, now + 0.8);
-                gain.gain.setValueAtTime(0.5, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.8);
-                osc.start(now); osc.stop(now + 0.8); return;
-            }
-
-            if (profile === 'wood') {
-                if (type === 'move') {
-                    osc.type = 'triangle'; osc.frequency.setValueAtTime(110, now); osc.frequency.exponentialRampToValueAtTime(50, now + 0.06);
-                    gain.gain.setValueAtTime(0.6, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.06); osc.start(now); osc.stop(now + 0.06);
-                } else if (type === 'capture') {
-                    osc.type = 'sine'; osc.frequency.setValueAtTime(180, now); osc.frequency.setValueAtTime(90, now + 0.03);
-                    gain.gain.setValueAtTime(0.8, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.07); osc.start(now); osc.stop(now + 0.07);
-                } else if (type === 'check') {
-                    osc.type = 'triangle'; osc.frequency.setValueAtTime(220, now); osc.frequency.setValueAtTime(180, now + 0.1);
-                    gain.gain.setValueAtTime(0.4, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.2); osc.start(now); osc.stop(now + 0.2);
-                }
-            } else if (profile === 'arcade') {
-                if (type === 'move') {
-                    osc.type = 'sine'; osc.frequency.setValueAtTime(200, now); osc.frequency.exponentialRampToValueAtTime(400, now + 0.08);
-                    gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08); osc.start(now); osc.stop(now + 0.08);
-                } else if (type === 'capture') {
-                    osc.type = 'square'; osc.frequency.setValueAtTime(150, now); osc.frequency.linearRampToValueAtTime(50, now + 0.12);
-                    gain.gain.setValueAtTime(0.4, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12); osc.start(now); osc.stop(now + 0.12);
-                } else if (type === 'check') {
-                    osc.type = 'square'; osc.frequency.setValueAtTime(700, now); osc.frequency.setValueAtTime(900, now + 0.08);
-                    gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.25); osc.start(now); osc.stop(now + 0.25);
-                }
-            } else if (profile === 'digital') {
-                if (type === 'move') {
-                    osc.type = 'sine'; osc.frequency.setValueAtTime(880, now);
-                    gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.005, now + 0.15); osc.start(now); osc.stop(now + 0.15);
-                } else if (type === 'capture') {
-                    osc.type = 'sine'; osc.frequency.setValueAtTime(1200, now); osc.frequency.exponentialRampToValueAtTime(600, now + 0.12);
-                    gain.gain.setValueAtTime(0.25, now); gain.gain.exponentialRampToValueAtTime(0.005, now + 0.12); osc.start(now); osc.stop(now + 0.12);
-                } else if (type === 'check') {
-                    osc.type = 'sine'; osc.frequency.setValueAtTime(587.33, now); osc.frequency.setValueAtTime(659.25, now + 0.08); osc.frequency.setValueAtTime(880, now + 0.16);
-                    gain.gain.setValueAtTime(0.3, now); gain.gain.linearRampToValueAtTime(0.005, now + 0.35); osc.start(now); osc.stop(now + 0.35);
-                }
-            }
+            if (type === 'move') { osc.type = 'triangle'; osc.frequency.setValueAtTime(110, now); osc.frequency.exponentialRampToValueAtTime(50, now + 0.06); gain.gain.setValueAtTime(0.6, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.06); osc.start(now); osc.stop(now + 0.06); } 
+            else if (type === 'capture') { osc.type = 'sine'; osc.frequency.setValueAtTime(180, now); osc.frequency.setValueAtTime(90, now + 0.03); gain.gain.setValueAtTime(0.8, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.07); osc.start(now); osc.stop(now + 0.07); } 
+            else if (type === 'check') { osc.type = 'triangle'; osc.frequency.setValueAtTime(220, now); osc.frequency.setValueAtTime(180, now + 0.1); gain.gain.setValueAtTime(0.4, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.2); osc.start(now); osc.stop(now + 0.2); }
         } catch(e) {}
     }
-
     function playChessSound(moveObj) {
         if (game.game_over()) return; 
         if (game.in_check()) playSynthSound('check');
@@ -754,111 +751,72 @@
         var m = Math.floor(seconds / 60); var s = seconds % 60;
         return m + ':' + (s < 10 ? '0' : '') + s;
     }
-
     function updateClocks() {
         if (isLearningMode || initialStartPending) return; 
-
         var topTime = (humanColor === 'w') ? blackTime : whiteTime; 
         var bottomTime = (humanColor === 'w') ? whiteTime : blackTime;
-        $('#time-opponent').text(formatTime(topTime));
-        $('#time-player').text(formatTime(bottomTime));
+        $('#time-opponent').text(formatTime(topTime)); $('#time-player').text(formatTime(bottomTime));
 
         if (!game.game_over() && !gameEnded) {
-            if (game.turn() === humanColor) {
-                $('#clock-player').addClass('clock-active'); $('#clock-opponent').removeClass('clock-active');
-            } else {
-                $('#clock-opponent').addClass('clock-active'); $('#clock-player').removeClass('clock-active');
-            }
+            if (game.turn() === humanColor) { $('#clock-player').addClass('clock-active'); $('#clock-opponent').removeClass('clock-active'); } 
+            else { $('#clock-opponent').addClass('clock-active'); $('#clock-player').removeClass('clock-active'); }
         } else {
             $('#clock-player, #clock-opponent').removeClass('clock-active');
         }
     }
-
     function startTimer() {
-        clearInterval(timerInterval); 
-        if (isLearningMode) return;
-        updateClocks();
+        clearInterval(timerInterval); if (isLearningMode) return; updateClocks();
         timerInterval = setInterval(function() {
             if (game.game_over() || gameEnded || initialStartPending || isLearningMode) return;
             if (game.turn() === 'w') { whiteTime--; if (whiteTime <= 0) handleTimeout('White'); } 
             else { blackTime--; if (blackTime <= 0) handleTimeout('Black'); }
-            updateClocks();
-            saveGameState(); 
+            updateClocks(); saveGameState(); 
         }, 1000);
     }
-
     function handleTimeout(color) { clearInterval(timerInterval); updateUI(); saveGameState(); }
 
-    // --- SCATTERED CAPTURED PIECES ---
-    function seededRandom(seed) { var x = Math.sin(seed) * 10000; return x - Math.floor(x); }
-
     function updateCapturedPieces() {
-        if (isLearningMode) {
-            $('#captured-player, #captured-opponent').empty();
-            return;
-        }
-
+        if (isLearningMode) { $('#captured-player, #captured-opponent').empty(); return; }
         var counts = { w: { p: 8, n: 2, b: 2, r: 2, q: 1 }, b: { p: 8, n: 2, b: 2, r: 2, q: 1 } };
         var boardState = game.board();
-        for (var i = 0; i < 8; i++) {
-            for (var j = 0; j < 8; j++) {
-                if (boardState[i][j]) { counts[boardState[i][j].color][boardState[i][j].type]--; }
-            }
-        }
+        for (var i = 0; i < 8; i++) { for (var j = 0; j < 8; j++) { if (boardState[i][j]) counts[boardState[i][j].color][boardState[i][j].type]--; } }
 
         function getPieceHTML(color, type, amount, startSeed) {
-            var html = '';
-            var c = color === 'w' ? 'w' : 'b'; var p = type.toUpperCase();
-            var src = config.pieceTheme(c + p); 
-            var styleClass = c === 'w' ? 'white-piece' : 'black-piece';
-            
+            var html = ''; var c = color === 'w' ? 'w' : 'b'; var p = type.toUpperCase();
+            var src = config.pieceTheme(c + p); var styleClass = c === 'w' ? 'white-piece' : 'black-piece';
             for(var k=0; k < Math.max(0, amount); k++) {
-                var rot = Math.floor(seededRandom(startSeed + k) * 90) - 45;
-                html += `<img class="captured-piece ${styleClass}" src="${src}" style="transform: rotate(${rot}deg);">`;
-            }
-            return html;
+                html += `<img class="captured-piece ${styleClass}" src="${src}" style="transform: rotate(${Math.floor((Math.sin(startSeed + k) * 10000 - Math.floor(Math.sin(startSeed + k) * 10000)) * 90) - 45}deg);">`;
+            } return html;
         }
 
-        var humanCaptured = ''; var oppCaptured = ''; 
-        var oppColor = humanColor === 'w' ? 'b' : 'w';
-        var pieceOrder = ['q','r','b','n','p'];
-        var seedTracker = 1;
-        
+        var humanCaptured = ''; var oppCaptured = ''; var oppColor = humanColor === 'w' ? 'b' : 'w';
+        var pieceOrder = ['q','r','b','n','p']; var seedTracker = 1;
         pieceOrder.forEach(function(p) {
             if (counts[oppColor][p] > 0) humanCaptured += getPieceHTML(oppColor, p, counts[oppColor][p], seedTracker++);
             if (counts[humanColor][p] > 0) oppCaptured += getPieceHTML(humanColor, p, counts[humanColor][p], seedTracker++);
         });
-        
-        $('#captured-player').html(humanCaptured);
-        $('#captured-opponent').html(oppCaptured);
+        $('#captured-player').html(humanCaptured); $('#captured-opponent').html(oppCaptured);
     }
 
-    // --- HIGHLIGHTS ---
     function updateHighlights() {
         $('#board .square-55d63').removeClass('selected-square').removeClass('legal-move-hint').removeClass('last-move-square').removeClass('in-check-square');
-        
         if (selectedSquare && !isLearningMode) {
             $('#board .square-' + selectedSquare).addClass('selected-square');
             var moves = game.moves({ square: selectedSquare, verbose: true });
             for (var i = 0; i < moves.length; i++) { $('#board .square-' + moves[i].to).addClass('legal-move-hint'); }
         }
-
         var history = game.history({ verbose: true });
         if (history.length > 0) {
             var lastMove = history[history.length - 1];
             $('#board .square-' + lastMove.from).addClass('last-move-square');
             $('#board .square-' + lastMove.to).addClass('last-move-square');
         }
-
         if (game.in_check() || game.in_checkmate()) {
-            var turn = game.turn();
-            var boardState = game.board();
+            var turn = game.turn(); var boardState = game.board();
             for (var r = 0; r < 8; r++) {
                 for (var c = 0; c < 8; c++) {
                     if (boardState[r][c] && boardState[r][c].type === 'k' && boardState[r][c].color === turn) {
-                        var kingSquare = "abcdefgh"[c] + (8 - r);
-                        $('#board .square-' + kingSquare).addClass('in-check-square');
-                        break;
+                        $('#board .square-' + ("abcdefgh"[c] + (8 - r))).addClass('in-check-square'); break;
                     }
                 }
             }
@@ -867,28 +825,24 @@
 
     // --- ENDLESS LEARNING MODE NAVIGATION & SIMULATION ---
     function nextOpeningMove() {
-        if (!isLearningMode || isGeneratingTheory) return;
-        initAudio();
+        if (!isLearningMode || isGeneratingTheory) return; initAudio();
 
         if (openingCurrentIndex < openingMoves.length) {
-            var move = game.move(openingMoves[openingCurrentIndex]);
-            if (move) {
-                openingCurrentIndex++;
-                board.position(game.fen());
-                playChessSound(move);
-                updateHighlights();
-                updateLearningUI();
+            var mInfo = game.move(openingMoves[openingCurrentIndex]);
+            if (mInfo) {
+                openingCurrentIndex++; board.position(game.fen());
+                playChessSound(mInfo); updateHighlights(); updateLearningUI();
+                showReasoning(getMoveReasoning(mInfo));
                 saveGameState();
             }
         } else {
-            // ENDLESS THEORY GENERATOR: Ask Stockfish for the absolute best move
             if (game.game_over()) return; 
-            
             isGeneratingTheory = true;
             $('#next-move-btn').text('...').prop('disabled', true);
             $status.text("Engine is generating optimal theory line...").css({"color": "#ffcc00", "border-left-color": "#ffcc00"});
             
-            var depth = 12; // Fast simulation depth
+            // Uses dashboard depth for calculation speed
+            var depth = parseInt($('#depth-select').val()); 
             stockfishWorker.postMessage('position fen ' + game.fen());
             stockfishWorker.postMessage('go depth ' + depth);
         }
@@ -896,66 +850,40 @@
 
     function prevOpeningMove() {
         if (!isLearningMode || openingCurrentIndex <= 0 || isGeneratingTheory) return;
-        initAudio();
-        game.undo();
-        openingCurrentIndex--;
-        board.position(game.fen());
-        playSynthSound('move');
-        updateHighlights();
-        updateLearningUI();
-        saveGameState();
+        initAudio(); game.undo(); openingCurrentIndex--; board.position(game.fen());
+        playSynthSound('move'); updateHighlights(); updateLearningUI(); hideReasoning(); saveGameState();
     }
 
     function updateLearningUI() {
         $('#opening-step').text(openingCurrentIndex + " / " + openingMoves.length);
-        
-        var history = game.history(); var historyHTML = "";
-        for (var i = 0; i < history.length; i += 2) {
-            var moveNum = (i / 2) + 1; var blackMove = history[i+1] ? history[i+1] : "";
-            historyHTML += moveNum + ". " + history[i] + " &nbsp;&nbsp;&nbsp;" + blackMove + "<br>";
-        }
-        if (history.length === 0) historyHTML = "<em>Start of opening sequence...</em>";
-        $history.html(historyHTML);
-        var historyDiv = document.getElementById('move-history'); historyDiv.scrollTop = historyDiv.scrollHeight;
+        renderHistoryWithHeuristics();
     }
 
     $('#next-move-btn').on('click', nextOpeningMove);
     $('#prev-move-btn').on('click', prevOpeningMove);
 
     $(document).on('keydown', function(e) {
-        if (isLearningMode) {
-            if (e.key === "ArrowRight") nextOpeningMove();
-            if (e.key === "ArrowLeft") prevOpeningMove();
-        }
+        if (isLearningMode) { if (e.key === "ArrowRight") nextOpeningMove(); if (e.key === "ArrowLeft") prevOpeningMove(); }
     });
 
-    // "Play From Here" Button - Transition from Learning to Live Match
     $('#play-from-here-btn').on('click', function() {
-        if (!isLearningMode || isGeneratingTheory) return;
-        initAudio();
+        if (!isLearningMode || isGeneratingTheory) return; initAudio();
         
-        isLearningMode = false;
-        $('body').removeClass('is-learning');
+        isLearningMode = false; $('body').removeClass('is-learning'); hideReasoning();
         
         humanColor = game.turn(); 
         board.orientation(humanColor === 'w' ? 'white' : 'black');
+        $('body').removeClass('ai-black ai-white').addClass(humanColor === 'w' ? 'ai-black' : 'ai-white');
         
-        var clockTime = getStartingSeconds();
-        whiteTime = clockTime; 
-        blackTime = clockTime;
-        grandmasterUndos = 2;
-        initialStartPending = true;
+        var clockTime = getStartingSeconds(); whiteTime = clockTime; blackTime = clockTime;
+        grandmasterUndos = 2; initialStartPending = true;
 
-        updateOpponentName();
-        updateCapturedPieces();
-        updateHighlights();
+        updateOpponentName(); updateCapturedPieces(); updateHighlights();
         
         $status.text("Setup complete. Tap your clock to start.").css({"color": "#d4af37", "border-left-color": "#d4af37"});
-        $('#time-player').text('START');
-        $('#clock-player').addClass('ready-to-start');
+        $('#time-player').text('START'); $('#clock-player').addClass('ready-to-start');
         $('#time-opponent').text(formatTime(clockTime));
         $('#clock-player, #clock-opponent').removeClass('clock-active');
-        
         saveGameState();
     });
 
@@ -963,52 +891,36 @@
     $('#clock-player').on('click', function() {
         if (isLearningMode) return;
         if (initialStartPending && isEngineReady) {
-            initAudio();
-            initialStartPending = false;
-            $(this).removeClass('ready-to-start');
-            
-            updateClocks();
-            startTimer();
-            updateUI();
-            
-            if (game.turn() !== humanColor) {
-                triggerEngineMove();
-            }
+            initAudio(); initialStartPending = false; $(this).removeClass('ready-to-start');
+            updateClocks(); startTimer(); updateUI();
+            if (game.turn() !== humanColor) triggerEngineMove();
             saveGameState();
         }
     });
 
     $('#board').on('click', '.square-55d63', function() {
         initAudio();
-        if (isLearningMode) return; 
-        if (initialStartPending) return; 
+        if (isLearningMode || initialStartPending) return; 
         if (game.game_over() || isEngineThinking || whiteTime <= 0 || blackTime <= 0) return;
         if (game.turn() !== humanColor) return;
         
         var square = $(this).attr('data-square');
-        
         if (selectedSquare) {
             var moves = game.moves({ square: selectedSquare, verbose: true });
             var isLegalMove = moves.some(m => m.to === square);
             
             if (isLegalMove) {
                 var move = game.move({ from: selectedSquare, to: square, promotion: 'q' });
-                selectedSquare = null;
-                board.position(game.fen());
-                playChessSound(move);
+                selectedSquare = null; board.position(game.fen());
+                playChessSound(move); applyIncrement(move.color);
                 
-                applyIncrement(move.color);
-
-                updateUI();
-                updateHighlights();
-                saveGameState();
-                triggerEngineMove();
+                showReasoning(getMoveReasoning(move)); // Show your own heuristic reason
+                
+                updateUI(); updateHighlights(); saveGameState(); triggerEngineMove();
                 return;
             }
             var piece = game.get(square);
-            if (piece && piece.color === humanColor) {
-                selectedSquare = square; updateHighlights(); return;
-            }
+            if (piece && piece.color === humanColor) { selectedSquare = square; updateHighlights(); return; }
             selectedSquare = null; updateHighlights();
         } else {
             var piece = game.get(square);
@@ -1016,23 +928,17 @@
         }
     });
 
-    // --- THE GRANDMASTER UNDO ---
     $('#undo-btn').on('click', function() {
         if (grandmasterUndos > 0 && game.history().length >= 2 && !isEngineThinking && !initialStartPending && !isLearningMode) {
-            initAudio(); grandmasterUndos--;
-            game.undo(); game.undo(); 
-            board.position(game.fen());
-            selectedSquare = null;
+            initAudio(); grandmasterUndos--; game.undo(); game.undo(); 
+            board.position(game.fen()); selectedSquare = null; hideReasoning();
             playSynthSound('move'); updateUI(); updateHighlights(); saveGameState();
         }
     });
 
-    // --- WORKER HANDLERS & MATCH LOGIC ---
     function triggerEngineMove() {
         if (game.game_over() || whiteTime <= 0 || blackTime <= 0 || isLearningMode) return;
-        isEngineThinking = true;
-        disableControls(true);
-        updateUndoButton(); 
+        isEngineThinking = true; disableControls(true); updateUndoButton(); 
         $status.text("Stockfish is calculating...");
         
         var depth = parseInt($('#depth-select').val());
@@ -1040,56 +946,53 @@
         stockfishWorker.postMessage('go depth ' + depth);
     }
 
+    // Renders the notation box with deep heuristic strings
+    function renderHistoryWithHeuristics() {
+        var history = game.history({verbose: true});
+        var historyHTML = "";
+        for (var i = 0; i < history.length; i += 2) {
+            var moveNum = (i / 2) + 1; 
+            var wMove = history[i]; var bMove = history[i+1];
+            
+            var wText = wMove.san + " <span class='reasoning-text'>(" + getMoveReasoning(wMove) + ")</span>";
+            var bText = "";
+            if (bMove) { bText = bMove.san + " <span class='reasoning-text'>(" + getMoveReasoning(bMove) + ")</span>"; }
+            
+            historyHTML += `<div class='history-turn'><strong>${moveNum}.</strong> ${wText}`;
+            if(bMove) historyHTML += `<div style="padding-left:15px; margin-top:4px;"><strong>...</strong> ${bText}</div>`;
+            historyHTML += `</div>`;
+        }
+        if (history.length === 0) historyHTML = "<em>Match initialized...</em>";
+        $history.html(historyHTML);
+        var historyDiv = document.getElementById('move-history'); historyDiv.scrollTop = historyDiv.scrollHeight;
+    }
+
     function updateUI () {
         if (initialStartPending || isLearningMode) return; 
-        
-        updateCapturedPieces();
-        updateClocks();
-        updateUndoButton(); 
-        updateHighlights();
+        updateCapturedPieces(); updateClocks(); updateUndoButton(); updateHighlights();
         
         if (game.game_over() || whiteTime <= 0 || blackTime <= 0) {
             clearInterval(timerInterval);
             if (!gameEnded) {
-                gameEnded = true;
-                var humanWon = false; var draw = false;
+                gameEnded = true; var humanWon = false; var draw = false;
                 
                 if (whiteTime <= 0) humanWon = (humanColor === 'b');
                 else if (blackTime <= 0) humanWon = (humanColor === 'w');
                 else if (game.in_checkmate()) humanWon = (game.turn() !== humanColor);
                 else draw = true;
 
-                if (draw) {
-                    playSynthSound('lose');
-                    $status.text('Game Ended in a Draw.');
-                    $status.css('border-left-color', '#888');
-                } else if (humanWon) {
-                    playSynthSound('win');
-                    confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 }, colors: ['#d4af37', '#ff0000', '#00ff00', '#0000ff'] });
-                    $status.text('Brilliant! You Won!');
-                    $status.css('border-left-color', '#00ff00');
-                } else {
-                    playSynthSound('lose');
-                    $status.text('You were defeated.');
-                    $status.css('border-left-color', '#ff0000');
-                }
+                if (draw) { playSynthSound('lose'); $status.text('Game Ended in a Draw.').css('border-left-color', '#888'); } 
+                else if (humanWon) { playSynthSound('win'); confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 }, colors: ['#d4af37', '#ff0000', '#00ff00', '#0000ff'] }); $status.text('Brilliant! You Won!').css('border-left-color', '#00ff00'); } 
+                else { playSynthSound('lose'); $status.text('You were defeated.').css('border-left-color', '#ff0000'); }
             }
         } else {
             var oppName = $("#opponent-label-name").text();
             var whoseTurn = (game.turn() === humanColor) ? "Your turn" : oppName + "'s turn";
-            $status.text(whoseTurn);
-            $status.css('border-left-color', '#007acc');
+            $status.text(whoseTurn).css('border-left-color', '#007acc');
             if (game.in_check()) $status.text(whoseTurn + ' (IN CHECK!)');
         }
 
-        var history = game.history(); var historyHTML = "";
-        for (var i = 0; i < history.length; i += 2) {
-            var moveNum = (i / 2) + 1; var blackMove = history[i+1] ? history[i+1] : "";
-            historyHTML += moveNum + ". " + history[i] + " &nbsp;&nbsp;&nbsp;" + blackMove + "<br>";
-        }
-        if (history.length === 0) historyHTML = "<em>Match initialized...</em>";
-        $history.html(historyHTML);
-        var historyDiv = document.getElementById('move-history'); historyDiv.scrollTop = historyDiv.scrollHeight;
+        renderHistoryWithHeuristics();
     }
 
     function disableControls(disabled) {
@@ -1099,157 +1002,81 @@
 
     function loadPosition(fenOrOpening, matchTitle) {
         if (isEngineThinking) return;
-        selectedSquare = null;
-        gameEnded = false; 
-        clearInterval(timerInterval);
+        selectedSquare = null; gameEnded = false; clearInterval(timerInterval);
         
+        var hasCustomInstruction = false;
+        var customInstructionText = "";
+
+        // Check if there's a custom instruction attached to this option in the HTML
+        var $opt = $('#scenario-select option[value="'+fenOrOpening+'"]');
+        if ($opt.length && $opt.data('instruction')) {
+            hasCustomInstruction = true;
+            customInstructionText = $opt.data('instruction');
+        }
+
         if (fenOrOpening.startsWith("OPENING:")) {
-            // LEARNING MODE BOOT
-            isLearningMode = true;
-            initialStartPending = false;
+            isLearningMode = true; initialStartPending = false;
             currentOpeningKey = fenOrOpening.split(":")[1];
             openingMoves = OPENINGS_DB[currentOpeningKey] || [];
             openingCurrentIndex = 0;
             
-            game.reset(); 
-            humanColor = 'w'; 
-            board.orientation('white');
-            board.position(game.fen());
+            game.reset(); humanColor = 'w'; 
+            board.orientation('white'); board.position(game.fen());
+            $('body').removeClass('ai-white').addClass('ai-black').addClass('is-learning');
             
             $('#fen-display').text("LEARNING: " + matchTitle);
             $status.text("Endless Explorer. Step or let Engine play.").css({"color": "#d4af37", "border-left-color": "#d4af37"});
             
-            $('body').addClass('is-learning');
-            updateLearningUI();
-            updateHighlights();
-            updateCapturedPieces(); 
-            saveGameState();
+            if (hasCustomInstruction) showReasoning(customInstructionText); else hideReasoning();
             
+            updateLearningUI(); updateHighlights(); updateCapturedPieces(); saveGameState();
         } else {
-            // MATCH MODE BOOT
-            isLearningMode = false;
-            currentOpeningKey = null;
+            isLearningMode = false; currentOpeningKey = null;
             $('body').removeClass('is-learning');
-            
-            initialStartPending = true; 
-            $('#clock-player').removeClass('ready-to-start');
+            initialStartPending = true; $('#clock-player').removeClass('ready-to-start');
             
             game.load(fenOrOpening);
-            
             humanColor = game.turn(); 
             board.orientation(humanColor === 'w' ? 'white' : 'black');
+            $('body').removeClass('ai-black ai-white').addClass(humanColor === 'w' ? 'ai-black' : 'ai-white');
             board.position(game.fen());
             
-            var clockTime = getStartingSeconds();
-            whiteTime = clockTime; 
-            blackTime = clockTime;
+            var clockTime = getStartingSeconds(); whiteTime = clockTime; blackTime = clockTime;
             grandmasterUndos = 2; 
             
             $('#fen-display').text(matchTitle || "SCENARIO: STANDARD MATCH");
             
-            updateOpponentName();
-            updateHighlights();
-            updateCapturedPieces();
+            if (hasCustomInstruction) showReasoning(customInstructionText); else hideReasoning();
+
+            updateOpponentName(); updateHighlights(); updateCapturedPieces();
             
             $status.text("Setup complete. Tap your clock to start.").css({"color": "#d4af37", "border-left-color": "#d4af37"});
-            $('#time-player').text('START');
-            $('#clock-player').addClass('ready-to-start');
+            $('#time-player').text('START'); $('#clock-player').addClass('ready-to-start');
             $('#time-opponent').text(formatTime(clockTime));
             $('#clock-player, #clock-opponent').removeClass('clock-active');
-            
             saveGameState();
         }
     }
-// --- 🌐 DYNAMIC ONLINE LIBRARY LOGIC ---
-    async function fetchOnlineLibrary() {
-        try {
-            /* HOW THIS WORKS:
-               You can host a simple JSON file anywhere (like a free GitHub Gist) formatted like this:
-               [ 
-                 { "title": "Today's Puzzle", "fen": "r1b2rk1/1pq2ppp/p1n1p3..." },
-                 { "title": "Kasparov vs Deep Blue", "fen": "..." } 
-               ]
-               Just replace the URL below with your raw JSON link.
-            */
-            
-            // Example: const response = await fetch('https://your-server.com/chess-library.json');
-            // const externalData = await response.json();
 
-            // For now, we will simulate the data arriving from a server:
-            const externalData = [
-                { title: "Daily Live Puzzle", fen: "r1b2rk1/1pq2ppp/p1n1p3/3pP3/1b1P4/1PNBPN2/P5PP/R2Q1RK1 w - - 1 14" },
-                { title: "Hikaru's Trap", fen: "r1bqk2r/pp2bppp/2np1n2/4p1N1/2B1P3/2N5/PP3PPP/R1BQK2R b KQkq - 3 8" },
-                { title: "Carlsen Endgame", fen: "8/8/8/4k3/8/4K3/4P3/8 w - - 0 1" }
-            ];
-
-            const $onlineGroup = $('#online-library');
-            $onlineGroup.empty(); // Remove the "Loading from internet..." text
-
-            // Inject the fetched FENs into the dropdown dynamically
-            externalData.forEach(item => {
-                $onlineGroup.append(`<option value="${item.fen}">${item.title}</option>`);
-            });
-
-        } catch (error) {
-            $('#online-library').html('<option value="error" disabled>Network Error: Could not load live library</option>');
-        }
-    }
-
-    // Trigger the internet fetch as soon as the page loads
-    fetchOnlineLibrary();
-
-
-    // --- 🌐 CUSTOM FEN PASTE HANDLER ---
-    $('#load-custom-fen-btn').on('click', function() {
-        var customFen = $('#custom-fen-input').val().trim();
-        
-        // Basic check to make sure it looks somewhat like a FEN string before loading
-        if (customFen.length > 15 && customFen.includes('/')) { 
-            initAudio();
-            loadPosition(customFen, "IMPORTED FEN MATCH");
-            $('#custom-fen-input').val(''); // Clear the input box cleanly
-            $('#dashboard-panel').fadeOut(150); // Close the dashboard
-        } else {
-            alert("Invalid FEN. Please paste a valid chess FEN string.");
-        }
-    });
     // EVENT HANDLERS
     $('#new-btn').on('click', function() { initAudio(); loadPosition('rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1', "SCENARIO: STANDARD MATCH"); });
-    
-    $('#load-btn').on('click', function() { 
-        initAudio(); 
-        var title = $('#scenario-select option:selected').text();
-        loadPosition($('#scenario-select').val(), title); 
-        $('#dashboard-panel').fadeOut(150);
-    });
-    
+    $('#load-btn').on('click', function() { initAudio(); var title = $('#scenario-select option:selected').text(); loadPosition($('#scenario-select').val(), title); $('#dashboard-panel').fadeOut(150); });
     $('#random-btn').on('click', function() {
-        initAudio();
-        var options = $('#scenario-select option'); var randomIdx = Math.floor(Math.random() * options.length);
-        $('#scenario-select').prop('selectedIndex', randomIdx); 
-        var title = options.eq(randomIdx).text();
+        initAudio(); var options = $('#scenario-select option'); var randomIdx = Math.floor(Math.random() * options.length);
+        $('#scenario-select').prop('selectedIndex', randomIdx); var title = options.eq(randomIdx).text();
         loadPosition(options.eq(randomIdx).val(), title);
     });
 
     $('#switch-btn').on('click', function() {
         initAudio(); if (isEngineThinking || game.game_over() || isLearningMode) return;
-        selectedSquare = null;
-        humanColor = (humanColor === 'w') ? 'b' : 'w'; 
+        selectedSquare = null; humanColor = (humanColor === 'w') ? 'b' : 'w'; 
         board.orientation(humanColor === 'w' ? 'white' : 'black'); 
-        
-        if (initialStartPending) {
-            updateCapturedPieces();
-            $('#time-player').text('START');
-        } else {
-            triggerEngineMove(); 
-        }
+        $('body').removeClass('ai-black ai-white').addClass(humanColor === 'w' ? 'ai-black' : 'ai-white');
+        if (initialStartPending) { updateCapturedPieces(); $('#time-player').text('START'); hideReasoning(); } else { triggerEngineMove(); }
         saveGameState();
     });
 
-    var config = {
-        pieceTheme: function(piece) { return 'https://images.chesscomfiles.com/chess-themes/pieces/wood/150/' + piece.toLowerCase() + '.png'; },
-        draggable: false, position: 'empty'
-    };
+    var config = { pieceTheme: function(piece) { return 'https://images.chesscomfiles.com/chess-themes/pieces/wood/150/' + piece.toLowerCase() + '.png'; }, draggable: false, position: 'empty' };
     board = Chessboard('board', config);
     
     var resizeDebounce;
@@ -1257,7 +1084,6 @@
         clearTimeout(resizeDebounce);
         resizeDebounce = setTimeout(function() { if(board) board.resize(); updateHighlights(); }, 150);
     });
-
     setTimeout(function() { board.resize(); updateHighlights(); }, 150);
     updateOpponentName();
 </script>
