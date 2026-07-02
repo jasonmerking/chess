@@ -1126,15 +1126,16 @@
         });
 
     $('#hint-btn').on('click', function() {
-        isHintActive = !isHintActive;
-        if (isHintActive) {
-            $(this).css({ 'filter': 'grayscale(0%) drop-shadow(0 0 10px #ffcc00)' });
-            requestHint();
-        } else {
-            $(this).css({ 'filter': 'grayscale(100%) drop-shadow(none)' });
-            clearHintLines();
-        }
-    });
+    isHintActive = !isHintActive;
+    if (isHintActive) {
+        $(this).css({ 'filter': 'grayscale(0%) drop-shadow(0 0 10px #ffcc00)' });
+        requestHint();
+    } else {
+        // FIX: Reverted to just grayscale to properly remove the glow
+        $(this).css({ 'filter': 'grayscale(100%)' });
+        clearHintLines();
+    }
+});
 
     function requestHint() {
         if (isHintActive && hintWorker && !isLearningMode && !initialStartPending && !game.game_over() && game.turn() === humanColor) {
