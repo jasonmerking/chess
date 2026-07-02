@@ -82,6 +82,18 @@
         label { font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #e6cdac; margin-bottom: 5px; text-shadow: 1px 1px 2px #000;}
         select { background-color: rgba(0,0,0,0.5); color: #e6cdac; border: 1px solid #5c3a21; padding: 10px; border-radius: 4px; font-size: 13px; outline: none; cursor: pointer; margin-bottom: 8px;}
         select:focus { border-color: #d4af37; box-shadow: 0 0 5px rgba(212,175,55,0.4); }
+        /* --- THEME FIX FOR DROPDOWN OPTIONS --- */
+select option {
+    background-color: #2b1700;
+    color: #e6cdac;
+    padding: 5px;
+}
+select optgroup {
+    background-color: #120a05;
+    color: #d4af37;
+    font-weight: bold;
+    font-family: 'Georgia', 'Times New Roman', serif;
+}
         
         .checkbox-wrapper { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; cursor: pointer; }
         .checkbox-wrapper input[type="checkbox"] { cursor: pointer; width: 16px; height: 16px; accent-color: #d4af37; }
@@ -1095,10 +1107,12 @@ activeScenarioTitle = matchTitle;
         saveGameState();
     });
     $('#reset-btn').on('click', function() {
-    initAudio();
-    $(this).css('transform', 'rotate(-180deg)'); // Spin animation
-    setTimeout(() => $(this).css('transform', 'rotate(0deg)'), 200);
-    loadPosition(activeScenario, activeScenarioTitle);
+    if (confirm("Are you sure you want to reset the board? Your current progress will be lost.")) {
+        initAudio();
+        $(this).css('transform', 'rotate(-180deg)'); // Spin animation
+        setTimeout(() => $(this).css('transform', 'rotate(0deg)'), 200);
+        loadPosition(activeScenario, activeScenarioTitle);
+    }
 });
 
     var config = { pieceTheme: function(piece) { return 'https://images.chesscomfiles.com/chess-themes/pieces/wood/150/' + piece.toLowerCase() + '.png'; }, draggable: false, position: 'empty' };
