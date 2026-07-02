@@ -256,7 +256,7 @@
             .player-panel .captured-area { justify-content: flex-end; padding-right: 10px;}
             .captured-piece { width: 34px; height: 34px; margin: -5px; }
 
-            #fen-display { top: max(18px, env(safe-area-inset-top)); left: 15px; bottom: auto; font-size: 10px; max-width: calc(100vw - 150px);}
+            #fen-display { top: calc(max(15px, env(safe-area-inset-top)) + 45px); left: 10px; right: 10px; bottom: auto; font-size: 11px; max-width: none; text-align: center; line-height: 1.4; z-index: 10; pointer-events: none;}
             #top-nav { top: max(12px, env(safe-area-inset-top)); right: 10px; gap: 4px; }
             .glass-btn { padding: 6px 10px; font-size: 10px; }
             #undo-btn { left: 50%; top: -35px; transform: translateX(-50%); padding: 6px 10px; font-size: 10px; }
@@ -411,9 +411,10 @@
         <div class="player-info">
             <!-- Hint Button Flex Wrapper integrated directly beside the label -->
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-                <button id="hint-btn" style="background: none; border: none; font-size: 18px; cursor: pointer; filter: grayscale(100%); transition: all 0.3s; padding: 0; margin: 0; outline: none;" title="Toggle AI Hint">💡</button>
-                <span class="player-label" style="margin-bottom: 0;">You</span>
-            </div>
+    <button id="hint-btn" style="background: none; border: none; font-size: 18px; cursor: pointer; filter: grayscale(100%); transition: all 0.3s; padding: 0; margin: 0; outline: none;" title="Toggle AI Hint">💡</button>
+    <span class="player-label" style="margin-bottom: 0;">You</span>
+    <button id="reset-btn" style="background: none; border: none; font-size: 19px; cursor: pointer; color: #aaa; transition: all 0.2s; padding: 0; margin: 0; outline: none;" title="Reset Match">↻</button>
+</div>
             <div style="position: relative;">
                 <div id="clock-player" class="clock"><span class="time" id="time-player">10:00</span></div>
                 <button id="undo-btn" class="glass-btn">⟲ UNDO (2)</button>
@@ -459,6 +460,9 @@
     var currentOpeningKey = null;
     var openingMoves = [];
     var openingCurrentIndex = 0;
+
+    var activeScenario = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
+var activeScenarioTitle = 'SCENARIO: STANDARD MATCH';
 
     const OPENINGS_DB = {
         "ruy_lopez": ["e4", "e5", "Nf3", "Nc6", "Bb5"],
@@ -1011,6 +1015,8 @@
     }
 
     function loadPosition(fenOrOpening, matchTitle) {
+        activeScenario = fenOrOpening;
+activeScenarioTitle = matchTitle;
         if (isEngineThinking) return;
         selectedSquare = null; gameEnded = false; clearInterval(timerInterval);
         
@@ -1088,6 +1094,12 @@
         if (initialStartPending) { updateCapturedPieces(); $('#time-player').text('START'); hideReasoning(); } else { triggerEngineMove(); }
         saveGameState();
     });
+    $('#reset-btn').on('click', function() {
+    initAudio();
+    $(this).css('transform', 'rotate(-180deg)'); // Spin animation
+    setTimeout(() => $(this).css('transform', 'rotate(0deg)'), 200);
+    loadPosition(activeScenario, activeScenarioTitle);
+});
 
     var config = { pieceTheme: function(piece) { return 'https://images.chesscomfiles.com/chess-themes/pieces/wood/150/' + piece.toLowerCase() + '.png'; }, draggable: false, position: 'empty' };
     board = Chessboard('board', config);
