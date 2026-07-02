@@ -314,7 +314,6 @@
     <div class="control-group" style="margin-top: 10px; border-top: 1px solid #5c3a21; padding-top: 15px;">
         <label>Scenarios & Live Library</label>
         <select id="scenario-select">
-            <!-- 🌐 THIS IS THE NEW DYNAMIC GROUP -->
             <optgroup id="online-library" label="🌐 Live Online Library">
                 <option value="loading" disabled>Loading from internet...</option>
             </optgroup>
@@ -352,7 +351,6 @@
         <button id="load-btn" disabled>Load Scenario</button>
     </div>
 
-    <!-- 🌐 NEW: PASTE CUSTOM FEN BOX -->
     <div class="control-group" style="margin-top: 5px; border-top: 1px solid #5c3a21; padding-top: 15px;">
         <a href="https://gist.github.com/jasonmerking/0067d706ee2f4459b88a1f4eced99658"
    target="_blank"
@@ -395,8 +393,12 @@
             <span id="reasoning-text">Waiting for move...</span>
         </div>
 
-        <!-- Chessboard -->
-        <div id="board-wrapper"><div id="board"></div></div>
+        <!-- Chessboard with Hint Overlay -->
+        <div id="board-wrapper">
+            <div id="board"></div>
+            <!-- Translucent SVG for overlaying AI hint lines securely above the squares -->
+            <svg id="hint-svg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 15;"></svg>
+        </div>
         
         <!-- Mobile Injection Wrapper for Theory Explorer -->
         <div id="mobile-opening-wrapper"></div>
@@ -407,7 +409,11 @@
     <div class="side-panel player-panel">
         <div id="captured-player" class="captured-area"></div>
         <div class="player-info">
-            <span class="player-label">You</span>
+            <!-- Hint Button Flex Wrapper integrated directly beside the label -->
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                <button id="hint-btn" style="background: none; border: none; font-size: 18px; cursor: pointer; filter: grayscale(100%); transition: all 0.3s; padding: 0; margin: 0; outline: none;" title="Toggle AI Hint">💡</button>
+                <span class="player-label" style="margin-bottom: 0;">You</span>
+            </div>
             <div style="position: relative;">
                 <div id="clock-player" class="clock"><span class="time" id="time-player">10:00</span></div>
                 <button id="undo-btn" class="glass-btn">⟲ UNDO (2)</button>
@@ -520,7 +526,6 @@
     // --- 🌐 DYNAMIC ONLINE LIBRARY LOGIC ---
     async function fetchOnlineLibrary() {
         try {
-            // Fetch live data from your GitHub Gist
             const response = await fetch('https://gist.githubusercontent.com/jasonmerking/0067d706ee2f4459b88a1f4eced99658/raw/chess-library.json');
             const externalData = await response.json();
 
@@ -1061,6 +1066,9 @@
             $('#clock-player, #clock-opponent').removeClass('clock-active');
             saveGameState();
         }
+        
+        // Hide hints smoothly on load
+        if(isHintActive) { $('#hint-btn').click(); }
     }
 
     // EVENT HANDLERS
@@ -1091,6 +1099,122 @@
     });
     setTimeout(function() { board.resize(); updateHighlights(); }, 150);
     updateOpponentName();
+
+    // =========================================================================
+    // --- AI HINT FEATURE (SEAMLESS INJECTION) ---
+    // =========================================================================
+    var isHintActive = false;
+    var hintWorker = null;
+
+    // Boot a dedicated, decoupled worker for hints to safely run parallel to the main logic[cite: 1]
+    fetch('https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.js', { cache: 'force-cache' })
+        .then(response => response.text())
+        .then(code => {
+            var blob = new Blob([code], {type: 'application/javascript'});
+            hintWorker = new Worker(URL.createObjectURL(blob));
+            hintWorker.onmessage = function(event) {
+                var line = event.data;
+                // Parse AI's recommended move and predicted opponent response (the 'ponder' line)
+                if (line.startsWith('bestmove')) {
+                    var match = line.match(/^bestmove\s([a-h][1-8])([a-h][1-8])[qrbn]?(?:\sponder\s([a-h][1-8])([a-h][1-8]))?/);
+                    if (match && isHintActive && !isEngineThinking) {
+                        drawHintLines(match[1], match[2], match[3], match[4]);
+                    }
+                }
+            };
+            hintWorker.postMessage('uci');
+        });
+
+    $('#hint-btn').on('click', function() {
+        isHintActive = !isHintActive;
+        if (isHintActive) {
+            $(this).css({ 'filter': 'grayscale(0%) drop-shadow(0 0 10px #ffcc00)' });
+            requestHint();
+        } else {
+            $(this).css({ 'filter': 'grayscale(100%) drop-shadow(none)' });
+            clearHintLines();
+        }
+    });
+
+    function requestHint() {
+        if (isHintActive && hintWorker && !isLearningMode && !initialStartPending && !game.game_over() && game.turn() === humanColor) {
+            hintWorker.postMessage('position fen ' + game.fen());
+            hintWorker.postMessage('go depth 12'); 
+        }
+    }
+
+    function clearHintLines() {
+        $('#hint-svg').empty();
+    }
+
+    function drawHintLines(f1, t1, f2, t2) {
+        clearHintLines();
+        
+        // Move 1: Draw the primary AI-suggested move[cite: 1]
+        drawLine(f1, t1, 'rgba(200, 200, 200, 0.65)', 10);
+        
+        // Move 2: Draw the anticipated opponent response if multi-step analysis (ponder) caught it
+        if (f2 && t2) {
+            drawLine(f2, t2, 'rgba(200, 200, 200, 0.4)', 6);
+        }
+    }
+
+    // Mathematical grid plotting mapping the dynamic squares to precise SVG strokes[cite: 1]
+    function drawLine(from, to, color, width) {
+        var $board = $('#board');
+        var $fromSq = $board.find('.square-' + from);
+        var $toSq = $board.find('.square-' + to);
+        var $svgBox = $('#hint-svg');
+        
+        if (!$fromSq.length || !$toSq.length) return;
+        
+        var svgPos = $svgBox.offset();
+        var fromPos = $fromSq.offset();
+        var toPos = $toSq.offset();
+        
+        var sqWidth = $fromSq.outerWidth();
+        var sqHeight = $fromSq.outerHeight();
+        
+        // Draw identically from the absolute center box coordinates 
+        var x1 = fromPos.left - svgPos.left + (sqWidth / 2);
+        var y1 = fromPos.top - svgPos.top + (sqHeight / 2);
+        var x2 = toPos.left - svgPos.left + (sqWidth / 2);
+        var y2 = toPos.top - svgPos.top + (sqHeight / 2);
+        
+        var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', x1);
+        line.setAttribute('y1', y1);
+        line.setAttribute('x2', x2);
+        line.setAttribute('y2', y2);
+        line.setAttribute('stroke', color);
+        line.setAttribute('stroke-width', width);
+        line.setAttribute('stroke-linecap', 'round');
+        
+        $svgBox.append(line);
+    }
+
+    // Safely hook into the original loop to trigger hint generation smoothly after opponent plays[cite: 1]
+    var _originalUpdateUI = updateUI;
+    updateUI = function() {
+        _originalUpdateUI();
+        clearHintLines();
+        if (game.turn() === humanColor) {
+            requestHint();
+        }
+    };
+
+    // Erase hints visually the exact moment the user interacts with the board
+    $('#board').on('mousedown touchstart', function() {
+        clearHintLines();
+    });
+
+    var _resizeDebounceHint;
+    $(window).on('resize orientationchange', function() {
+        clearTimeout(_resizeDebounceHint);
+        _resizeDebounceHint = setTimeout(function() { 
+            if (isHintActive && game.turn() === humanColor) requestHint();
+        }, 200);
+    });
 </script>
 </body>
 </html>
