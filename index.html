@@ -55,12 +55,7 @@
         .glass-btn:hover:not(:disabled) { background: rgba(0, 122, 204, 0.9); border-color: #007acc; color: white; transform: translateY(-1px); }
         .glass-btn:disabled { background: rgba(10, 10, 10, 0.6); color: #555; cursor: not-allowed; }
 
-        #undo-btn {
-            display: none; 
-            position: absolute; left: calc(100% + 15px); top: 50%; transform: translateY(-50%);
-            white-space: nowrap; border-color: rgba(212, 175, 55, 0.4); color: #d4af37;
-        }
-        #undo-btn:hover { background: rgba(212, 175, 55, 0.2); border-color: #d4af37; color: #fff; }
+        
 
         /* --- DASHBOARD DROPDOWN --- */
         #dashboard-panel {
@@ -229,20 +224,48 @@ select optgroup {
         /* =========================================================
            MOBILE RESPONSIVENESS LOGIC (Flexbox Magic)
            ========================================================= */
+        /* =========================================================
+           MOBILE RESPONSIVENESS LOGIC (Side-by-Side Clocks)
+           ========================================================= */
         @media (max-width: 900px), (max-aspect-ratio: 1.1/1) {
+            
+            /* 1. ARENA SETUP */
             #arena {
-    flex-direction: column; justify-content: space-between; gap: 10px;
-    /* Increased top padding from 60px to 100px to clear the multi-line title */
-    padding: calc(max(15px, env(safe-area-inset-top)) + 85px) 10px max(15px, env(safe-area-inset-bottom)) 10px;
-}
+                position: relative; /* Crucial for absolute positioning of clocks */
+                flex-direction: column; justify-content: flex-start; gap: 10px;
+                /* Increased top padding to 165px to clear the side-by-side clocks */
+                padding: calc(max(15px, env(safe-area-inset-top)) + 165px) 10px max(15px, env(safe-area-inset-bottom)) 10px;
+            }
 
-            .side-panel { width: 100%; flex-direction: row; padding: 0; align-items: center; justify-content: space-between;}
-            .player-info { width: auto; align-items: flex-start; margin-bottom: 0;}
-            .player-panel .player-info { align-items: flex-end; }
+            /* 2. REMOVE CAPTURED PIECES */
+            .captured-area { display: none !important; }
+
+            /* 3. SIDE-BY-SIDE CLOCKS */
+            .side-panel { width: 100%; display: block; padding: 0; margin: 0;}
             body.is-learning .side-panel { display: none; }
 
-            /* Center Stage Flexbox Reordering on Mobile */
-            #center-stage { width: 100%; gap: 8px; }
+            /* Opponent clock pinned Top-Left */
+            .opponent-panel .player-info {
+                position: absolute; 
+                top: calc(max(15px, env(safe-area-inset-top)) + 85px); 
+                left: 15px; 
+                align-items: flex-start;
+                margin: 0; width: auto;
+                height: 75px; justify-content: space-between;
+            }
+            
+            /* Player clock + UI pinned Top-Right */
+            .player-panel .player-info {
+                position: absolute; 
+                top: calc(max(15px, env(safe-area-inset-top)) + 85px); 
+                right: 15px; 
+                align-items: flex-end;
+                margin: 0; width: auto;
+                height: 75px; justify-content: space-between;
+            }
+
+            /* 4. CENTER STAGE (Board & AI Text) */
+            #center-stage { width: 100%; gap: 8px; margin: 0;}
             
             #board-wrapper {
                 width: 100%; max-width: min(100vw - 20px, 100dvh - 220px); 
@@ -250,7 +273,6 @@ select optgroup {
             }
             body.is-learning #board-wrapper { max-width: min(100vw - 20px, 100dvh - 150px); }
 
-            /* If AI is Black (Top), reasoning is ABOVE board. If White, reasoning is BELOW board */
             body.ai-black #ai-reasoning-box { display: block; order: 1; width: 100%; max-width: min(100vw - 20px, 100dvh - 220px); padding: 8px; font-size: 11px;}
             body.ai-black #board-wrapper { order: 2; }
             body.ai-black #mobile-opening-wrapper { order: 3; width: 100%;}
@@ -263,17 +285,15 @@ select optgroup {
             .clock { width: 120px; height: 50px; border-width: 3px; }
             .clock .time { font-size: 26px; }
             .ready-to-start .time { font-size: 22px; }
-            .player-label { font-size: 11px; padding: 3px 10px; margin-bottom: 4px; }
-            .captured-area { flex: 1; min-height: auto; margin: 0; align-content: center;}
-            .opponent-panel .captured-area { justify-content: flex-start; padding-left: 10px;}
-            .player-panel .captured-area { justify-content: flex-end; padding-right: 10px;}
-            .captured-piece { width: 34px; height: 34px; margin: -5px; }
+            .player-label { font-size: 11px; padding: 5px 10px 4px 10px; margin-bottom: 0; display: inline-flex; align-items: center; justify-content: center; line-height: 1; }
 
-            #fen-display { top: calc(max(15px, env(safe-area-inset-top)) + 35px); left: 10px; right: 10px; bottom: auto; font-size: 10px; max-width: none; text-align: center; line-height: 1.4; z-index: 10; pointer-events: none;}
+
+
+            /* 6. NAVIGATION & TEXT */
+            #fen-display { top: calc(max(15px, env(safe-area-inset-top)) + 35px); left: 10px; right: 10px; bottom: auto; font-size: 11px; max-width: none; text-align: center; line-height: 1.4; z-index: 10; pointer-events: none;}
             #top-nav { top: max(12px, env(safe-area-inset-top)); right: 10px; gap: 4px; }
             .glass-btn { padding: 6px 10px; font-size: 10px; }
-            #undo-btn { left: 50%; top: -35px; transform: translateX(-50%); padding: 6px 10px; font-size: 10px; }
-
+            
             /* Mobile Opening Nav routing */
             #opening-nav { position: static; background: transparent; border: none; box-shadow: none; padding: 10px 0 0 0; margin-top: 0; display: none; }
             body.is-learning #mobile-opening-wrapper #opening-nav { display: flex; flex-direction: row; gap: 10px;}
@@ -422,16 +442,13 @@ select optgroup {
     <div class="side-panel player-panel">
         <div id="captured-player" class="captured-area"></div>
         <div class="player-info">
-            <!-- Hint Button Flex Wrapper integrated directly beside the label -->
-            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
-    <button id="hint-btn" style="background: none; border: none; font-size: 18px; cursor: pointer; filter: grayscale(100%); transition: all 0.3s; padding: 0; margin: 0; outline: none;" title="Toggle AI Hint">💡</button>
-    <span class="player-label" style="margin-bottom: 0;">You</span>
-    <button id="reset-btn" style="background: none; border: none; font-size: 19px; cursor: pointer; color: #aaa; transition: all 0.2s; padding: 0; margin: 0; outline: none;" title="Reset Match">↻</button>
-</div>
-            <div style="position: relative;">
-                <div id="clock-player" class="clock"><span class="time" id="time-player">10:00</span></div>
-                <button id="undo-btn" class="glass-btn">⟲ UNDO (2)</button>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <button id="reset-btn" style="background: none; border: none; font-size: 19px; cursor: pointer; color: #aaa; transition: all 0.2s; padding: 0; margin: 0; outline: none;" title="Reset Match">↻</button>
+                <button id="hint-btn" style="background: none; border: none; font-size: 18px; cursor: pointer; filter: grayscale(100%); transition: all 0.3s; padding: 0; margin: 0; outline: none;" title="Toggle AI Hint">💡</button>
+                <span class="player-label" style="margin-bottom: 0; line-height: 1;">You</span>
+                <button id="undo-btn" style="display: none; background: none; border: none; font-size: 22px; cursor: pointer; color: #ffaa00; transition: all 0.2s; padding: 0; margin: 0; outline: none; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));" title="Undo Move">⟲<sup id="undo-count" style="font-size: 12px; margin-left: 1px; color: #fff;">2</sup></button>
             </div>
+            <div id="clock-player" class="clock"><span class="time" id="time-player">10:00</span></div>
         </div>
         
         <!-- Desktop Injection Wrapper for Theory Explorer -->
@@ -680,14 +697,17 @@ var activeScenarioTitle = 'SCENARIO: STANDARD MATCH';
     });
 
     function updateUndoButton() {
-        if (isLearningMode) { $('#undo-btn').fadeOut(200); return; }
-        var depth = parseInt($('#depth-select').val());
-        if (depth === 15 && grandmasterUndos > 0 && game.history().length >= 2 && !isEngineThinking && !gameEnded && !initialStartPending) {
-            $('#undo-btn').text('⟲ UNDO (' + grandmasterUndos + ')').fadeIn(200);
-        } else {
-            $('#undo-btn').fadeOut(200);
-        }
+    if (isLearningMode) { $('#undo-btn').fadeOut(200); return; }
+    var depth = parseInt($('#depth-select').val());
+    
+    if (depth === 15 && grandmasterUndos > 0 && game.history().length >= 2 && !isEngineThinking && !gameEnded && !initialStartPending) {
+        // Update just the tiny badge number
+        $('#undo-count').text(grandmasterUndos);
+        $('#undo-btn').fadeIn(200);
+    } else {
+        $('#undo-btn').fadeOut(200);
     }
+}
 
     $('#toggle-dashboard-btn').on('click', function() { $('#dashboard-panel').fadeToggle(150); });
     $(document).on('click', function(e) {
