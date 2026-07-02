@@ -273,13 +273,18 @@ select optgroup {
             }
             body.is-learning #board-wrapper { max-width: min(100vw - 20px, 100dvh - 150px); }
 
-            body.ai-black #ai-reasoning-box { display: block; order: 1; width: 100%; max-width: min(100vw - 20px, 100dvh - 220px); padding: 8px; font-size: 11px;}
-            body.ai-black #board-wrapper { order: 2; }
-            body.ai-black #mobile-opening-wrapper { order: 3; width: 100%;}
-
-            body.ai-white #board-wrapper { order: 1; }
-            body.ai-white #ai-reasoning-box { display: block; order: 2; width: 100%; max-width: min(100vw - 20px, 100dvh - 220px); padding: 8px; font-size: 11px;}
-            body.ai-white #mobile-opening-wrapper { order: 3; width: 100%;}
+            /* Lock Board on top */
+            #board-wrapper { order: 1; }
+            
+            /* Lock Reasoning Box below the board */
+            #ai-reasoning-box { 
+                display: block; order: 2; 
+                width: 100%; max-width: min(100vw - 20px, 100dvh - 220px); 
+                padding: 8px; font-size: 11px; margin: 0 auto; box-sizing: border-box;
+            }
+            
+            /* Lock Theory Navigation below reasoning */
+            #mobile-opening-wrapper { order: 3; width: 100%; }
 
             /* Clocks and UI Resizing */
             .clock { width: 120px; height: 50px; border-width: 3px; }
